@@ -1,0 +1,260 @@
+wandb_version: 1
+
+_wandb:
+  desc: null
+  value:
+    python_version: 3.8.19
+    cli_version: 0.16.4
+    framework: lightning
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    start_time: 1711336298.0
+    t:
+      1:
+      - 1
+      - 9
+      - 50
+      - 55
+      - 103
+      2:
+      - 1
+      - 9
+      - 50
+      - 55
+      - 103
+      3:
+      - 7
+      - 13
+      - 23
+      - 60
+      4: 3.8.19
+      5: 0.16.4
+      8:
+      - 5
+      9:
+        2: lightning_fabric_logger
+      13: linux-x86_64
+    m:
+    - 1: trainer/global_step
+      6:
+      - 3
+    - 1: Info/learning_rate
+      5: 1
+      6:
+      - 1
+    - 1: Info/clip_coef
+      5: 1
+      6:
+      - 1
+    - 1: Info/ent_coef
+      5: 1
+      6:
+      - 1
+    - 1: Rewards/rew_avg
+      5: 1
+      6:
+      - 1
+    - 1: Game/ep_len_avg
+      5: 1
+      6:
+      - 1
+    - 1: Loss/value_loss
+      5: 1
+      6:
+      - 1
+    - 1: Loss/policy_loss
+      5: 1
+      6:
+      - 1
+    - 1: Loss/entropy_loss
+      5: 1
+      6:
+      - 1
+    - 1: Time/sps_train
+      5: 1
+      6:
+      - 1
+    - 1: Time/sps_env_interaction
+      5: 1
+      6:
+      - 1
+num_threads:
+  desc: null
+  value: 1
+float32_matmul_precision:
+  desc: null
+  value: high
+dry_run:
+  desc: null
+  value: false
+seed:
+  desc: null
+  value: 42
+torch_use_deterministic_algorithms:
+  desc: null
+  value: false
+torch_backends_cudnn_benchmark:
+  desc: null
+  value: true
+torch_backends_cudnn_deterministic:
+  desc: null
+  value: false
+cublas_workspace_config:
+  desc: null
+  value: null
+exp_name:
+  desc: null
+  value: ppo_CartPole-v1
+run_name:
+  desc: null
+  value: 2024-03-25_10-11-35_ppo_CartPole-v1_42
+root_dir:
+  desc: null
+  value: ppo/CartPole-v1
+algo:
+  desc: null
+  value:
+    name: ppo
+    total_steps: 65536
+    per_rank_batch_size: 64
+    run_test: true
+    cnn_keys:
+      encoder: []
+    mlp_keys:
+      encoder:
+      - state
+    optimizer:
+      _target_: torch.optim.Adam
+      lr: 0.001
+      eps: 0.0001
+      weight_decay: 0
+      betas:
+      - 0.9
+      - 0.999
+    anneal_lr: false
+    gamma: 0.99
+    gae_lambda: 0.95
+    update_epochs: 10
+    loss_reduction: mean
+    normalize_advantages: false
+    clip_coef: 0.2
+    anneal_clip_coef: false
+    clip_vloss: false
+    ent_coef: 0.0
+    anneal_ent_coef: false
+    vf_coef: 1.0
+    rollout_steps: 128
+    dense_units: 64
+    mlp_layers: 2
+    dense_act: torch.nn.Tanh
+    layer_norm: false
+    max_grad_norm: 0.0
+    encoder:
+      cnn_features_dim: 512
+      mlp_features_dim: 64
+      dense_units: 64
+      mlp_layers: 2
+      dense_act: torch.nn.Tanh
+      layer_norm: false
+    actor:
+      dense_units: 64
+      mlp_layers: 2
+      dense_act: torch.nn.Tanh
+      layer_norm: false
+    critic:
+      dense_units: 64
+      mlp_layers: 2
+      dense_act: torch.nn.Tanh
+      layer_norm: false
+buffer:
+  desc: null
+  value:
+    size: 128
+    memmap: true
+    validate_args: false
+    from_numpy: false
+    share_data: false
+checkpoint:
+  desc: null
+  value:
+    every: 100
+    resume_from: null
+    save_last: true
+    keep_last: 5
+distribution:
+  desc: null
+  value:
+    validate_args: false
+env:
+  desc: null
+  value:
+    id: CartPole-v1
+    num_envs: 4
+    frame_stack: 1
+    sync_env: false
+    screen_size: 64
+    action_repeat: 1
+    grayscale: false
+    clip_rewards: false
+    capture_video: true
+    frame_stack_dilation: 1
+    max_episode_steps: null
+    reward_as_observation: false
+    wrapper:
+      _target_: gymnasium.make
+      id: CartPole-v1
+      render_mode: rgb_array
+    mask_velocities: false
+fabric:
+  desc: null
+  value:
+    _target_: lightning.fabric.Fabric
+    devices: 1
+    num_nodes: 1
+    strategy: auto
+    accelerator: cpu
+    precision: 32-true
+    callbacks:
+    - _target_: sheeprl.utils.callback.CheckpointCallback
+      keep_last: 5
+metric:
+  desc: null
+  value:
+    log_every: 5000
+    disable_timer: false
+    log_level: 1
+    sync_on_compute: false
+    aggregator:
+      _target_: sheeprl.utils.metric.MetricAggregator
+      raise_on_missing: false
+      metrics:
+        Rewards/rew_avg:
+          _target_: torchmetrics.MeanMetric
+          sync_on_compute: false
+        Game/ep_len_avg:
+          _target_: torchmetrics.MeanMetric
+          sync_on_compute: false
+        Loss/value_loss:
+          _target_: torchmetrics.MeanMetric
+          sync_on_compute: false
+        Loss/policy_loss:
+          _target_: torchmetrics.MeanMetric
+          sync_on_compute: false
+        Loss/entropy_loss:
+          _target_: torchmetrics.MeanMetric
+          sync_on_compute: false
+    logger:
+      _target_: wandb.integration.lightning.fabric.WandbLogger
+      name: 2024-03-25_10-11-35_ppo_CartPole-v1_42
+      version: null
+      prefix: ''
+      log_model: all
+model_manager:
+  desc: null
+  value:
+    disabled: true
+    models:
+      agent:
+        model_name: ppo_CartPole-v1_agent
+        description: PPO Agent in CartPole-v1 Environment
+        tags: {}

@@ -173,3 +173,6 @@ mlartifacts
 examples/models
 session_*
 bin/
+*.ckpt
+*.mp4
+*.memmap

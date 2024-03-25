@@ -1,0 +1,5 @@
+_target_: wandb.integration.lightning.fabric.WandbLogger
+name: ${run_name}
+version: null
+prefix: ""
+log_model: all

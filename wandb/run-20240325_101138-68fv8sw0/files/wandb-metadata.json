@@ -1,0 +1,99 @@
+{
+    "os": "Linux-6.5.0-26-generic-x86_64-with-glibc2.17",
+    "python": "3.8.19",
+    "heartbeatAt": "2024-03-25T03:11:40.956381",
+    "startedAt": "2024-03-25T03:11:38.274352",
+    "docker": null,
+    "cuda": null,
+    "args": [
+        "exp=ppo",
+        "env=gym",
+        "env.id=CartPole-v1",
+        "logger@metric.logger=wandb"
+    ],
+    "state": "running",
+    "program": "sheeprl.py",
+    "codePathLocal": "sheeprl.py",
+    "codePath": "sheeprl.py",
+    "host": "jukebox",
+    "username": "jukebox",
+    "executable": "/home/jukebox/miniconda3/envs/inv/bin/python",
+    "cpu_count": 6,
+    "cpu_count_logical": 12,
+    "cpu_freq": {
+        "current": 1632.7869166666667,
+        "min": 400.0,
+        "max": 4564.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 400.0,
+            "min": 400.0,
+            "max": 4564.0
+        },
+        {
+            "current": 1807.725,
+            "min": 400.0,
+            "max": 4564.0
+        },
+        {
+            "current": 2535.045,
+            "min": 400.0,
+            "max": 4564.0
+        },
+        {
+            "current": 400.0,
+            "min": 400.0,
+            "max": 4564.0
+        },
+        {
+            "current": 1979.79,
+            "min": 400.0,
+            "max": 4564.0
+        },
+        {
+            "current": 2687.748,
+            "min": 400.0,
+            "max": 4564.0
+        },
+        {
+            "current": 2025.939,
+            "min": 400.0,
+            "max": 4564.0
+        },
+        {
+            "current": 400.0,
+            "min": 400.0,
+            "max": 4564.0
+        },
+        {
+            "current": 2016.464,
+            "min": 400.0,
+            "max": 4564.0
+        },
+        {
+            "current": 400.0,
+            "min": 400.0,
+            "max": 4564.0
+        },
+        {
+            "current": 4540.732,
+            "min": 400.0,
+            "max": 4564.0
+        },
+        {
+            "current": 400.0,
+            "min": 400.0,
+            "max": 4564.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 467.8895797729492,
+            "used": 26.896060943603516
+        }
+    },
+    "memory": {
+        "total": 13.329143524169922
+    }
+}

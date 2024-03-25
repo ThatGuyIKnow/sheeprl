@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Environment Requirements</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="environment-requirements">Environment Requirements</h1>
+<p>This repository requires that the environments have certain characteristics, in particular, that they have a <a href="https://gymnasium.farama.org/api/env/">gymnasium-compliant interface</a>.</p>
+<p>The main properties/methods that the environment has to provide are the following:</p>
+<ul>
+<li>A <code>step</code> function that takes in input the actions and outputs the next observations, the reward for taking that actions, whether the environment has terminated, whether the environment was truncated, and information from the environment about the step.</li>
+<li>A <code>reset</code> function that resets the environment and returns the initial observations and some info about the episode.</li>
+<li>A <code>render</code> function that renders the environment to help visualizing what the agent sees, some possible render modes are: <code>human</code> or <code>rgb_array</code>.</li>
+<li>A <code>close</code> function that closes the environment.</li>
+<li>An <code>action_space</code> property indicating the valid actions, i.e., all the valid actions should be contained in that space. For more info, check <a href="https://gymnasium.farama.org/api/spaces/fundamental/">here</a>.</li>
+<li>An <code>observation_space</code> property indicating all the valid observations that an agent can receive from the environment. This observation space must be of type <a href="https://gymnasium.farama.org/api/spaces/composite/#gymnasium.spaces.Dict"><code>gymnasium.spaces.Dict</code></a>, and, its elements cannot be of type <code>gymnasium.spaces.Dict</code>, so it must be a flatten dictionary.</li>
+<li>A <code>reward_range</code> (not mandatory), to specify the range that the agent can receive in a single step.</li>
+</ul>
+<div class="markdown-alert markdown-alert-note"><p class="markdown-alert-title"><svg class="octicon octicon-info mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p><p></p>
+<p>All the observations returned by the <code>step</code> and <code>reset</code> functions must be python dictionary of numpy arrays.</p>
+</div>
+<h1 id="add-a-new-environment">Add a new Environment</h1>
+<p>There are two ways to add a new environment:</p>
+<ol>
+<li>Create from scratch a custom environment by inheriting from the <a href="https://gymnasium.farama.org/api/env/#gymnasium-env"><code>gymnasium.Env</code></a> class.</li>
+<li>Take an existing environment and add a wrapper to be compliant with the above directives.</li>
+</ol>
+<p>In both cases, the environment or wrapper must be inserted in a dedicated file in the <code>./sheeprl/envs</code> folder, for instance, you should add the <code>custom_env.py</code> file in <code>./sheeprl/envs</code> folder.
+After that, you must create a new config file and place it in the <code>./sheeprl/configs/env</code> folder.</p>
+<div class="markdown-alert markdown-alert-note"><p class="markdown-alert-title"><svg class="octicon octicon-info mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p><p></p>
+<p>It could be necessary to define the <code>metadata</code> property containing metadata information about the environment. It is used by the <code>gym.experimental.wrappers.RecordVideoV0</code> wrapper, which is responsible for capturing the video of the episode.</p>
+</div>
+<h2 id="create-from-scratch">Create from Scratch</h2>
+<p>If one needs to create a custom environment, then he/she can define a class by inheriting from the <code>gymnasium.Env</code> class. So, you need to define the <code>__init__</code> function for initializing the required properties, then define the <code>step</code>, <code>reset</code>, <code>close</code>, and <code>render</code> functions.</p>
+<p>The following shows an example of how you can define an environment with continuous actions from scratch:</p>
+<pre><code class="language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">List</span>, <span class="hljs-type">Tuple</span>
+
+<span class="hljs-keyword">import</span> gymnasium <span class="hljs-keyword">as</span> gym
+<span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np
+
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ContinuousDummyEnv</span>(gym.Env):
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, action_dim: <span class="hljs-built_in">int</span> = <span class="hljs-number">2</span>, size: <span class="hljs-type">Tuple</span>[<span class="hljs-built_in">int</span>, <span class="hljs-built_in">int</span>, <span class="hljs-built_in">int</span>] = (<span class="hljs-params"><span class="hljs-number">3</span>, <span class="hljs-number">64</span>, <span class="hljs-number">64</span></span>), n_steps: <span class="hljs-built_in">int</span> = <span class="hljs-number">128</span></span>):
+        self.action_space = gym.spaces.Box(-np.inf, np.inf, shape=(action_dim,))
+        self.observation_space = gym.spaces.Box(<span class="hljs-number">0</span>, <span class="hljs-number">256</span>, shape=size, dtype=np.uint8)
+        self.reward_range = (-np.inf, np.inf)
+        self._current_step = <span class="hljs-number">0</span>
+        self._n_steps = n_steps
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">step</span>(<span class="hljs-params">self, action</span>):
+        done = self._current_step == self._n_steps
+        self._current_step += <span class="hljs-number">1</span>
+        <span class="hljs-keyword">return</span> (
+            np.zeros(self.observation_space.shape, dtype=np.uint8),
+            np.zeros(<span class="hljs-number">1</span>, dtype=np.float32).item(),
+            done,
+            <span class="hljs-literal">False</span>,
+            {},
+        )
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">reset</span>(<span class="hljs-params">self, seed=<span class="hljs-literal">None</span>, options=<span class="hljs-literal">None</span></span>):
+        self._current_step = <span class="hljs-number">0</span>
+        <span class="hljs-keyword">return</span> np.zeros(self.observation_space.shape, dtype=np.uint8), {}
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">render</span>(<span class="hljs-params">self, mode=<span class="hljs-string">&quot;human&quot;</span>, close=<span class="hljs-literal">False</span></span>):
+        <span class="hljs-keyword">pass</span>
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">close</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-keyword">pass</span>
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">seed</span>(<span class="hljs-params">self, seed=<span class="hljs-literal">None</span></span>):
+        <span class="hljs-keyword">pass</span>
+</code></pre>
+<h2 id="define-a-wrapper-for-existing-environments">Define a Wrapper for existing Environments</h2>
+<p>The second option is to create a wrapper for existing environments, so define a class that inherits from the <code>gymnasium.Wrapper</code> class.
+Then you can redefine, if necessary, the <code>action_space</code>, <code>observation_space</code>, <code>render_mode</code>, and <code>reward_range</code> properties in the <code>__init__</code> function.
+Finally, you can define the other functions to make the environment compatible with the library.</p>
+<p>The following is the example, we implemented the wrapper for the <a href="https://github.com/danijar/crafter">Crafter</a> environment. As one can notice, the observations are converted by the <code>_convert_obs</code> function. Moreover, in the <code>step</code> function, the <code>truncated</code> is always set to <code>False</code>, since the original environment does not provide this information. Finally, in the <code>__init__</code> function the <code>reward_range</code>, <code>observation_space</code>, <code>action_space</code>, <code>render_mode</code>, and <code>metadata</code> properties are redefined.</p>
+<pre><code class="language-python"><span class="hljs-keyword">from</span> __future__ <span class="hljs-keyword">import</span> annotations
+
+<span class="hljs-keyword">from</span> sheeprl.utils.imports <span class="hljs-keyword">import</span> _IS_CRAFTER_AVAILABLE
+
+<span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> _IS_CRAFTER_AVAILABLE:
+    <span class="hljs-keyword">raise</span> ModuleNotFoundError(_IS_CRAFTER_AVAILABLE)
+
+<span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Any</span>, <span class="hljs-type">Dict</span>, <span class="hljs-type">List</span>, <span class="hljs-type">Optional</span>, <span class="hljs-type">Sequence</span>, SupportsFloat, <span class="hljs-type">Tuple</span>, <span class="hljs-type">Union</span>
+
+<span class="hljs-keyword">import</span> crafter
+<span class="hljs-keyword">import</span> gymnasium <span class="hljs-keyword">as</span> gym
+<span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np
+<span class="hljs-keyword">from</span> gymnasium <span class="hljs-keyword">import</span> spaces
+<span class="hljs-keyword">from</span> gymnasium.core <span class="hljs-keyword">import</span> RenderFrame
+
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">CrafterWrapper</span>(gym.Wrapper):
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">str</span>, screen_size: <span class="hljs-type">Sequence</span>[<span class="hljs-built_in">int</span>, <span class="hljs-built_in">int</span>] | <span class="hljs-built_in">int</span>, seed: <span class="hljs-built_in">int</span> | <span class="hljs-literal">None</span> = <span class="hljs-literal">None</span></span>) -&gt; <span class="hljs-literal">None</span>:
+        <span class="hljs-keyword">assert</span> <span class="hljs-built_in">id</span> <span class="hljs-keyword">in</span> {<span class="hljs-string">&quot;crafter_reward&quot;</span>, <span class="hljs-string">&quot;crafter_nonreward&quot;</span>}
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(screen_size, <span class="hljs-built_in">int</span>):
+            screen_size = (screen_size,) * <span class="hljs-number">2</span>
+
+        env = crafter.Env(size=screen_size, seed=seed, reward=(<span class="hljs-built_in">id</span> == <span class="hljs-string">&quot;crafter_reward&quot;</span>))
+        <span class="hljs-built_in">super</span>().__init__(env)
+        self.observation_space = spaces.<span class="hljs-type">Dict</span>(
+            {
+                <span class="hljs-string">&quot;rgb&quot;</span>: spaces.Box(
+                    self.env.observation_space.low,
+                    self.env.observation_space.high,
+                    self.env.observation_space.shape,
+                    self.env.observation_space.dtype,
+                )
+            }
+        )
+        self.action_space = spaces.Discrete(self.env.action_space.n)
+        self.reward_range = self.env.reward_range <span class="hljs-keyword">or</span> (-np.inf, np.inf)
+        self.observation_space.seed(seed)
+        self.action_space.seed(seed)
+        <span class="hljs-comment"># render</span>
+        self._render_mode: <span class="hljs-built_in">str</span> = <span class="hljs-string">&quot;rgb_array&quot;</span>
+        <span class="hljs-comment"># metadata</span>
+        self._metadata = {<span class="hljs-string">&quot;render_fps&quot;</span>: <span class="hljs-number">30</span>}
+
+<span class="hljs-meta">    @property</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">render_mode</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-built_in">str</span> | <span class="hljs-literal">None</span>:
+        <span class="hljs-keyword">return</span> self._render_mode
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_convert_obs</span>(<span class="hljs-params">self, obs: np.ndarray</span>) -&gt; <span class="hljs-type">Dict</span>[<span class="hljs-built_in">str</span>, np.ndarray]:
+        <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;rgb&quot;</span>: obs}
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">step</span>(<span class="hljs-params">self, action: <span class="hljs-type">Any</span></span>) -&gt; <span class="hljs-type">Tuple</span>[<span class="hljs-type">Any</span>, SupportsFloat, <span class="hljs-built_in">bool</span>, <span class="hljs-built_in">bool</span>, <span class="hljs-type">Dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-type">Any</span>]]:
+        obs, reward, done, info = self.env.step(action)
+        <span class="hljs-keyword">return</span> self._convert_obs(obs), reward, done, <span class="hljs-literal">False</span>, info
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">reset</span>(<span class="hljs-params">
+        self, *, seed: <span class="hljs-type">Optional</span>[<span class="hljs-built_in">int</span>] = <span class="hljs-literal">None</span>, options: <span class="hljs-type">Optional</span>[<span class="hljs-type">Dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-type">Any</span>]] = <span class="hljs-literal">None</span>
+    </span>) -&gt; <span class="hljs-type">Tuple</span>[<span class="hljs-type">Any</span>, <span class="hljs-type">Dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-type">Any</span>]]:
+        obs = self.env.reset()
+        <span class="hljs-keyword">return</span> self._convert_obs(obs), {}
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">render</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-type">Optional</span>[<span class="hljs-type">Union</span>[RenderFrame, <span class="hljs-type">List</span>[RenderFrame]]]:
+        <span class="hljs-keyword">return</span> self.env.render()
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">close</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-literal">None</span>:
+        <span class="hljs-keyword">return</span>
+</code></pre>
+<h2 id="add-config-file">Add Config File</h2>
+<p>The last step to perform is to add the config file, more precisely, it must contain the following fields:</p>
+<ul>
+<li><code>id</code> of the environment you want to instantiate.</li>
+<li><code>wrapper</code>: the settings to instantiate the environment.</li>
+</ul>
+<p>For example, the Crafter config file is the following:</p>
+<pre><code class="language-yaml"><span class="hljs-attr">defaults:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-string">default</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-string">_self_</span>
+
+<span class="hljs-comment"># Override from `default` config</span>
+<span class="hljs-attr">id:</span> <span class="hljs-string">crafter_reward</span>
+<span class="hljs-attr">action_repeat:</span> <span class="hljs-number">1</span>
+<span class="hljs-attr">capture_video:</span> <span class="hljs-literal">False</span>
+<span class="hljs-attr">reward_as_observation:</span> <span class="hljs-literal">True</span>
+
+<span class="hljs-comment"># Wrapper to be instantiated</span>
+<span class="hljs-attr">wrapper:</span>
+  <span class="hljs-attr">_target_:</span> <span class="hljs-string">sheeprl.envs.crafter.CrafterWrapper</span>
+  <span class="hljs-attr">id:</span> <span class="hljs-string">${env.id}</span>
+  <span class="hljs-attr">screen_size:</span> <span class="hljs-string">${env.screen_size}</span>
+  <span class="hljs-attr">seed:</span> <span class="hljs-string">${seed}</span>
+</code></pre>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>

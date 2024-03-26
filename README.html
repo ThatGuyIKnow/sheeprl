@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>&#x26a1; SheepRL &#x1f411;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="-sheeprl-">⚡ SheepRL 🐑</h1>
+<p align="center">
+  <img src="file:////media/jukebox/USB/sheeprl/assets/images/logo.svg" style="width:40%">
+</p>
+<div align="center">
+  <table>
+    <tr>
+      <td><img src="https://github.com/Eclectic-Sheep/sheeprl/assets/18405289/6efd09f0-df91-4da0-971d-92e0213b8835" width="200px"></td>
+      <td><img src="https://github.com/Eclectic-Sheep/sheeprl/assets/18405289/dbba57db-6ef5-4db4-9c53-d7b5f303033a" width="200px"></td>
+      <td><img src="https://github.com/Eclectic-Sheep/sheeprl/assets/18405289/3f38e5eb-aadd-4402-a698-695d1f99c048" width="200px"></td>
+      <td><img src="https://github.com/Eclectic-Sheep/sheeprl/assets/18405289/93749119-fe61-44f1-94bb-fdb89c1869b5" width="200px"></td>
+    </tr>
+  </table>
+</div>
+<div align="center">
+  <table>
+    <thead>
+      <tr>
+        <th>Environment</th>
+        <th>Total frames</th>
+        <th>Training time</th>
+        <th>Test reward</th>
+        <th>Paper reward</th>
+        <th>GPUs</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Crafter</td>
+        <td>1M</td>
+        <td>1d 3h</td>
+        <td>12.1</td>
+        <td>11.7</td>
+        <td>1-V100</td>
+      </tr>
+      <tr>
+        <td>Atari-MsPacman</td>
+        <td>100K</td>
+        <td>14h</td>
+        <td>1542</td>
+        <td>1327</td>
+        <td>1-3080</td>
+      </tr>
+      <tr>
+        <td> Atari-Boxing</td>
+        <td>100K</td>
+        <td>14h</td>
+        <td>84</td>
+        <td>78</td>
+        <td>1-3080</td>
+      </tr>
+      <tr>
+        <td>DOA++(w/o optimizations)<sup>1</sup></td>
+        <td>7M</td>
+        <td>18d 22h</td>
+        <td>2726/3328<sup>2</sup></td>
+        <td>N.A.</td>
+        <td>1-3080</td>
+      </tr>
+      <tr>
+        <td>Minecraft-Nav(w/o optimizations)</td>
+        <td>8M</td>
+        <td>16d 4h</td>
+        <td>27% &gt;= 70<br>14% &gt;= 100</td>
+        <td>N.A.</td>
+        <td>1-V100</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<ol>
+<li>For comparison: 1M in 2d 7h vs 1M in 1d 5h (before and after optimizations resp.)</li>
+<li>Best <a href="https://diambra.ai/leaderboard">leaderboard score in DIAMBRA</a> (11/7/2023)</li>
+</ol>
+<h4 id="benchmarks">Benchmarks</h4>
+<p>The training times of our implementations compared to the ones of Stable Baselines3 are shown below:</p>
+<div align="center">
+  <table>
+    <thead>
+      <tr>
+        <th colspan="2"></th>
+        <th>SheepRL v0.4.0</th>
+        <th>SheepRL v0.4.9</th>
+        <th>SheepRL v0.5.2<br />(Numpy Buffers)</th>
+        <th>StableBaselines3<sup>1</sup></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td rowspan="2"><b>PPO</b></td>
+        <td><i>1 device</i></td>
+        <td>192.31s &plusmn; 1.11</td>
+        <td>138.3s &plusmn; 0.16</td>
+        <td>80.81s &plusmn; 0.68</td>
+        <td>77.21s &plusmn; 0.36</td>
+      </tr>
+      <tr>
+        <td><i>2 devices</i></td>
+        <td>85.42s &plusmn; 2.27</td>
+        <td>59.53s &plusmn; 0.78</td>
+        <td>46.09s &plusmn; 0.59</td>
+        <td>N.D.</td>
+      </tr>
+      <tr>
+        <td rowspan="2"><b>SAC</b></td>
+        <td><i>1 device</i></td>
+        <td>421.37s &plusmn; 5.27</td>
+        <td>363.74s &plusmn; 3.44</td>
+        <td>318.06s &plusmn; 4.46</td>
+        <td>336.06s &plusmn; 12.26</td>
+      </tr>
+      <tr>
+        <td><i>2 devices</i></td>
+        <td>264.29s &plusmn; 1.81</td>
+        <td>238.88s &plusmn; 4.97</td>
+        <td>210.07s &plusmn; 27</td>
+        <td>N.D.</td>
+      </tr>
+      <tr>
+        <td><b>Dreamer V1</b></td>
+        <td><i>1 device</i></td>
+        <td>4201.23s</td>
+        <td>N.D.</td>
+        <td>2921.38s</td>
+        <td>N.D.</td>
+      </tr>
+      <tr>
+        <td><b>Dreamer V2</b></td>
+        <td><i>1 device</i></td>
+        <td>1874.62s</td>
+        <td>N.D.</td>
+        <td>1148.1s</td>
+        <td>N.D.</td>
+      </tr>
+      <tr>
+        <td><b>Dreamer V3</b></td>
+        <td><i>1 device</i></td>
+        <td>2022.99s</td>
+        <td>N.D.</td>
+        <td>1378.01s</td>
+        <td>N.D.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="markdown-alert markdown-alert-note"><p class="markdown-alert-title"><svg class="octicon octicon-info mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p><p></p>
+<p>All experiments have been run on 4 CPUs in <a href="https://lightning.ai/">Lightning Studio</a>.
+All benchmarks, but the Dreamers' ones, have been run 5 times and we have taken the mean and the std of the runs.
+We have disabled the test function, the logging, and the checkpoints. Moreover, the models were not registered using MLFlow.</p>
+<p>Dreamers' benchmarks have been run 1 time with logging and checkpoints, without running the test function.</p>
+<ol>
+<li>The StableBaselines3 version is <code>v2.2.1</code>, please install the package with <code>pip install stable-baselines3==2.2.1</code></li>
+</ol>
+</div>
+<h2 id="what">What</h2>
+<p>An easy-to-use framework for reinforcement learning in PyTorch, accelerated with <a href="https://lightning.ai/docs/fabric/stable/">Lightning Fabric</a>.<br>
+The algorithms sheeped by sheeprl out-of-the-box are:</p>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Coupled</th>
+<th>Decoupled</th>
+<th>Recurrent</th>
+<th>Vector obs</th>
+<th>Pixel obs</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A2C</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:x:</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>A3C</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:x:</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:construction:</td>
+</tr>
+<tr>
+<td>PPO</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>PPO Recurrent</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>SAC</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>SAC-AE</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:x:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>DroQ</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:x:</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>Dreamer-V1</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>Dreamer-V2</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>Dreamer-V3</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>Plan2Explore (Dreamer V1)</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>Plan2Explore (Dreamer V2)</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>Plan2Explore (Dreamer V3)</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+</tbody>
+</table>
+<p>and more are coming soon! <a href="https://github.com/Eclectic-Sheep/sheeprl/pulls">Open a PR</a> if you have any particular request :sheep:</p>
+<p>The actions supported by sheeprl agents are:</p>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Continuous</th>
+<th>Discrete</th>
+<th>Multi-Discrete</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A2C</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>A3C</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>PPO</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>PPO Recurrent</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>SAC</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:x:</td>
+</tr>
+<tr>
+<td>SAC-AE</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:x:</td>
+</tr>
+<tr>
+<td>DroQ</td>
+<td>:heavy_check_mark:</td>
+<td>:x:</td>
+<td>:x:</td>
+</tr>
+<tr>
+<td>Dreamer-V1</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>Dreamer-V2</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>Dreamer-V3</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>Plan2Explore (Dreamer V1)</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>Plan2Explore (Dreamer V2)</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>Plan2Explore (Dreamer V3)</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+<td>:heavy_check_mark:</td>
+</tr>
+</tbody>
+</table>
+<p>The environments supported by sheeprl are:</p>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Installation command</th>
+<th>More info</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Classic Control</td>
+<td><code>pip install sheeprl</code></td>
+<td></td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>Box2D</td>
+<td><code>pip install sheeprl[box2d]</code></td>
+<td>Please install first <code>swig</code> with <code>pip install swig</code></td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>Mujoco (Gymnasium)</td>
+<td><code>pip install sheeprl[mujoco]</code></td>
+<td><a href="./howto/learn_in_dmc.html">how_to/mujoco</a></td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>Atari</td>
+<td><code>pip install sheeprl[atari]</code></td>
+<td><a href="./howto/learn_in_atari.html">how_to/atari</a></td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>DeepMind Control</td>
+<td><code>pip install sheeprl[dmc]</code></td>
+<td><a href="./howto/learn_in_dmc.html">how_to/dmc</a></td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>MineRL</td>
+<td><code>pip install sheeprl[minerl]</code></td>
+<td><a href="./howto/learn_in_minerl.html">how_to/minerl</a></td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>MineDojo</td>
+<td><code>pip install sheeprl[minedojo]</code></td>
+<td><a href="./howto/learn_in_minedojo.html">how_to/minedojo</a></td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>DIAMBRA</td>
+<td><code>pip install sheeprl[diambra]</code></td>
+<td><a href="./howto/learn_in_diambra.html">how_to/diambra</a></td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>Crafter</td>
+<td><code>pip install sheeprl[crafter]</code></td>
+<td><a href="https://github.com/danijar/crafter">https://github.com/danijar/crafter</a></td>
+<td>:heavy_check_mark:</td>
+</tr>
+<tr>
+<td>Super Mario Bros</td>
+<td><code>pip install sheeprl[supermario]</code></td>
+<td><a href="https://github.com/Kautenja/gym-super-mario-bros/tree/master">https://github.com/Kautenja/gym-super-mario-bros/tree/master</a></td>
+<td>:heavy_check_mark:</td>
+</tr>
+</tbody>
+</table>
+<h2 id="why">Why</h2>
+<p>We want to provide a framework for RL algorithms that is at the same time simple and scalable thanks to Lightning Fabric.</p>
+<p>Moreover, in many RL repositories, the RL algorithm is tightly coupled with the environment, making it harder to extend them beyond the gym interface. We want to provide a framework that allows to easily decouple the RL algorithm from the environment, so that it can be used with any environment.</p>
+<h2 id="how-to-use-it">How to use it</h2>
+<h3 id="installation">Installation</h3>
+<p>Three options exist for installing SheepRL</p>
+<ol>
+<li>Install the latest version directly from the <a href="https://pypi.org/project/sheeprl/">PyPi index</a></li>
+<li>Clone the repo and install the local version</li>
+<li>pip-install the framework using the GitHub clone URL</li>
+</ol>
+<p>Instructions for the three methods are shown below.</p>
+<h4 id="install-sheeprl-from-pypi">Install SheepRL from PyPi</h4>
+<p>You can install the latest version of SheepRL with</p>
+<pre><code class="language-bash">pip install sheeprl
+</code></pre>
+<div class="markdown-alert markdown-alert-note"><p class="markdown-alert-title"><svg class="octicon octicon-info mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p><p></p>
+<p>To install optional dependencies one can run for example <code>pip install sheeprl[atari,box2d,dev,mujoco,test]</code></p>
+</div>
+<p>For a detailed information about all the optional dependencies you can install please have a look at the <a href="#what">What</a> section</p>
+<h4 id="cloning-and-installing-a-local-version">Cloning and installing a local version</h4>
+<p>First, clone the repo with:</p>
+<pre><code class="language-bash">git <span class="hljs-built_in">clone</span> https://github.com/Eclectic-Sheep/sheeprl.git
+<span class="hljs-built_in">cd</span> sheeprl
+</code></pre>
+<p>From inside the newly created folder run</p>
+<pre><code class="language-bash">pip install .
+</code></pre>
+<div class="markdown-alert markdown-alert-note"><p class="markdown-alert-title"><svg class="octicon octicon-info mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p><p></p>
+<p>To install optional dependencies one can run for example <code>pip install .[atari,box2d,dev,mujoco,test]</code></p>
+</div>
+<h4 id="installing-the-framework-from-the-github-repo">Installing the framework from the GitHub repo</h4>
+<p>If you haven't already done so, create an environment with your choice of venv or conda.</p>
+<blockquote>
+<p>The example will use Python standard's venv module and assumes macOS or Linux.</p>
+</blockquote>
+<pre><code class="language-sh"><span class="hljs-comment"># create a virtual environment</span>
+python3 -m venv .venv
+
+<span class="hljs-comment"># activate the environment</span>
+<span class="hljs-built_in">source</span> .venv/bin/activate
+
+<span class="hljs-comment"># if you do not wish to install extras such as mujuco, atari do</span>
+pip install <span class="hljs-string">&quot;sheeprl @ git+https://github.com/Eclectic-Sheep/sheeprl.git&quot;</span>
+
+<span class="hljs-comment"># or, to install with atari and mujuco environment support, do</span>
+pip install <span class="hljs-string">&quot;sheeprl[atari,mujoco,dev] @ git+https://github.com/Eclectic-Sheep/sheeprl.git&quot;</span>
+
+<span class="hljs-comment"># or, to install with box2d environment support, do</span>
+pip install swig
+pip install <span class="hljs-string">&quot;sheeprl[box2d] @ git+https://github.com/Eclectic-Sheep/sheeprl.git&quot;</span>
+
+<span class="hljs-comment"># or, to install with minedojo environment support, do</span>
+pip install <span class="hljs-string">&quot;sheeprl[minedojo,dev] @ git+https://github.com/Eclectic-Sheep/sheeprl.git&quot;</span>
+
+<span class="hljs-comment"># or, to install with minerl environment support, do</span>
+pip install <span class="hljs-string">&quot;sheeprl[minerl,dev] @ git+https://github.com/Eclectic-Sheep/sheeprl.git&quot;</span>
+
+<span class="hljs-comment"># or, to install with diambra environment support, do</span>
+pip install <span class="hljs-string">&quot;sheeprl[diambra,dev] @ git+https://github.com/Eclectic-Sheep/sheeprl.git&quot;</span>
+
+<span class="hljs-comment"># or, to install with super mario bros environment support, do</span>
+pip install <span class="hljs-string">&quot;sheeprl[supermario,dev] @ git+https://github.com/Eclectic-Sheep/sheeprl.git&quot;</span>
+
+<span class="hljs-comment"># or, to install all extras, do</span>
+pip install swig
+pip install <span class="hljs-string">&quot;sheeprl[box2d,atari,mujoco,minerl,supermario,dev,test] @ git+https://github.com/Eclectic-Sheep/sheeprl.git&quot;</span>
+</code></pre>
+<h4 id="additional-installing-on-an-m-series-mac">Additional: installing on an M-series Mac</h4>
+<div class="markdown-alert markdown-alert-caution"><p class="markdown-alert-title"><svg class="octicon octicon-stop mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Caution</p><p></p>
+<p>If you are on an M-series Mac and encounter an error attributed box2dpy during installation, you need to install SWIG using the instructions shown below.</p>
+</div>
+<p>It is recommended to use <a href="https://brew.sh/">homebrew</a> to install <a href="https://formulae.brew.sh/formula/swig">SWIG</a> to support <a href="https://github.com/openai/gym">Gym</a>.</p>
+<pre><code class="language-sh"><span class="hljs-comment"># if needed install homebrew</span>
+/bin/bash -c <span class="hljs-string">&quot;<span class="hljs-subst">$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)</span>&quot;</span>
+
+<span class="hljs-comment"># then, do</span>
+brew install swig
+
+<span class="hljs-comment"># then attempt to pip install with the preferred method, such as</span>
+pip install <span class="hljs-string">&quot;sheeprl[atari,box2d,mujoco,dev,test] @ git+https://github.com/Eclectic-Sheep/sheeprl.git&quot;</span>
+</code></pre>
+<h4 id="additional-minerl-and-minedojo">Additional: MineRL and MineDojo</h4>
+<div class="markdown-alert markdown-alert-note"><p class="markdown-alert-title"><svg class="octicon octicon-info mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p><p></p>
+<p>If you want to install the <em>minedojo</em> or <em>minerl</em> environment support, Java JDK 8 is required: you can install it by following the instructions at this <a href="https://docs.minedojo.org/sections/getting_started/install.html#on-ubuntu-20-04">link</a>.</p>
+</div>
+<div class="markdown-alert markdown-alert-caution"><p class="markdown-alert-title"><svg class="octicon octicon-stop mr-2" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Caution</p><p></p>
+<p><strong>MineRL</strong> and <strong>MineDojo</strong> environments have <strong>conflicting requirements</strong>, so <strong>DO NOT install them together</strong> with the <code>pip install sheeprl[minerl,minedojo]</code> command, but instead <strong>install them individually</strong> with either the command <code>pip install sheeprl[minerl]</code> or <code>pip install sheeprl[minedojo]</code> before running an experiment with the MineRL or MineDojo environment, respectively.</p>
+</div>
+<h3 id="run-an-experiment-with-sheeprl">Run an experiment with SheepRL</h3>
+<p>Now you can use one of the already available algorithms, or create your own.
+For example, to train a PPO agent on the CartPole environment with only vector-like observations, just run</p>
+<pre><code class="language-bash">python sheeprl.py exp=ppo <span class="hljs-built_in">env</span>=gym env.id=CartPole-v1
+</code></pre>
+<p>if you have installed from a cloned repo, or</p>
+<pre><code class="language-bash">sheeprl exp=ppo <span class="hljs-built_in">env</span>=gym env.id=CartPole-v1
+</code></pre>
+<p>if you have installed SheepRL from PyPi.</p>
+<p>Similarly, you check all the available algorithms with</p>
+<pre><code class="language-bash">python sheeprl/available_agents.py
+</code></pre>
+<p>if you have installed from a cloned repo, or</p>
+<pre><code class="language-bash">sheeprl-agents
+</code></pre>
+<p>if you have installed SheepRL from PyPi.</p>
+<p>That's all it takes to train an agent with SheepRL! 🎉</p>
+<blockquote>
+<p>Before you start using the SheepRL framework, it is <strong>highly recommended</strong> that you read the following instructional documents:</p>
+<ol>
+<li>How to <a href="https://github.com/Eclectic-Sheep/sheeprl/blob/main/howto/run_experiments.md">run experiments</a></li>
+<li>How to <a href="https://github.com/Eclectic-Sheep/sheeprl/blob/main/howto/configs.md">modify the default configs</a></li>
+<li>How to <a href="https://github.com/Eclectic-Sheep/sheeprl/blob/main/howto/work_with_steps.md">work with steps</a></li>
+<li>How to <a href="https://github.com/Eclectic-Sheep/sheeprl/blob/main/howto/select_observations.md">select observations</a></li>
+</ol>
+<p>Moreover, there are other useful documents in the <a href="https://github.com/Eclectic-Sheep/sheeprl/tree/main/howto"><code>howto</code> folder</a>, these documents contain some guidance on how to properly use the framework.</p>
+</blockquote>
+<h3 id="chart_with_upwards_trend-check-your-results">:chart_with_upwards_trend: Check your results</h3>
+<p>Once you trained an agent, a new folder called <code>logs</code> will be created, containing the logs of the training. You can visualize them with <a href="https://www.tensorflow.org/tensorboard">TensorBoard</a>:</p>
+<pre><code class="language-bash">tensorboard --logdir logs
+</code></pre>
+<p><a href="https://github.com/Eclectic-Sheep/sheeprl/assets/7341604/46ad4acd-180d-449d-b46a-25b4a1f038d9">https://github.com/Eclectic-Sheep/sheeprl/assets/7341604/46ad4acd-180d-449d-b46a-25b4a1f038d9</a></p>
+<h3 id="nerd_face-more-about-running-an-algorithm">:nerd_face: More about running an algorithm</h3>
+<p>What you run is the PPO algorithm with the default configuration. But you can also change the configuration by passing arguments to the script.</p>
+<p>For example, in the default configuration, the number of parallel environments is 4. Let's try to change it to 8 by passing the <code>--num_envs</code> argument:</p>
+<pre><code class="language-bash">sheeprl exp=ppo <span class="hljs-built_in">env</span>=gym env.id=CartPole-v1 env.num_envs=8
+</code></pre>
+<p>All the available arguments, with their descriptions, are listed in the <code>sheeprl/config</code> directory. You can find more information about the hierarchy of configs <a href="./howto/run_experiments.html">here</a>.</p>
+<h3 id="running-with-lightning-fabric">Running with Lightning Fabric</h3>
+<p>To run the algorithm with Lightning Fabric, you need to specify the Fabric parameters through the CLI. For example, to run the PPO algorithm with 4 parallel environments on 2 nodes, you can run:</p>
+<pre><code class="language-bash">sheeprl fabric.accelerator=cpu fabric.strategy=ddp fabric.devices=2 exp=ppo <span class="hljs-built_in">env</span>=gym env.id=CartPole-v1
+</code></pre>
+<p>You can check the available parameters for Lightning Fabric <a href="https://lightning.ai/docs/fabric/stable/api/fabric_args.html">here</a>.</p>
+<h3 id="evaluate-your-agents">Evaluate your Agents</h3>
+<p>You can easily evaluate your trained agents from checkpoints: training configurations are retrieved automatically.</p>
+<pre><code class="language-bash">sheeprl-eval checkpoint_path=/path/to/checkpoint.ckpt fabric.accelerator=gpu env.capture_video=True
+</code></pre>
+<p>For more information, check the corresponding <a href="./howto/eval_your_agent.html">howto</a>.</p>
+<h2 id="book-repository-structure">:book: Repository structure</h2>
+<p>The repository is structured as follows:</p>
+<ul>
+<li>
+<p><code>algos</code>: contains the implementations of the algorithms. Each algorithm is in a separate folder, and (possibly) contains the following files:</p>
+<ul>
+<li><code>&lt;algorithm&gt;.py</code>: contains the implementation of the algorithm.</li>
+<li><code>&lt;algorithm&gt;_decoupled.py</code>: contains the implementation of the decoupled version of the algorithm, if present.</li>
+<li><code>agent</code>: optional, contains the implementation of the agent.</li>
+<li><code>loss.py</code>: contains the implementation of the loss functions of the algorithm.</li>
+<li><code>utils.py</code>: contains utility functions for the algorithm.</li>
+</ul>
+</li>
+<li>
+<p><code>configs</code>: contains the default configs of the algorithms.</p>
+</li>
+<li>
+<p><code>data</code>: contains the implementation of the data buffers.</p>
+</li>
+<li>
+<p><code>envs</code>: contains the implementation of the environment wrappers.</p>
+</li>
+<li>
+<p><code>models</code>: contains the implementation of some standard models (building blocks), like the multi-layer perceptron (MLP) or a simple convolutional network (NatureCNN)</p>
+</li>
+<li>
+<p><code>utils</code>: contains utility functions for the framework.</p>
+</li>
+</ul>
+<h4 id="coupled-vs-decoupled">Coupled vs Decoupled</h4>
+<p>In the coupled version of an algorithm, the agent interacts with the environment and executes the training loop.</p>
+<p align="center">
+  <img src="file:////media/jukebox/USB/sheeprl/assets/images/sheeprl_coupled.png">
+</p>
+<p>In the decoupled version, a process is responsible only for interacting with the environment, and all the other processes are responsible for executing the training loop. The two processes communicate through <a href="https://lightning.ai/docs/fabric/stable/api/generated/lightning.fabric.plugins.collectives.TorchCollective.html#lightning.fabric.plugins.collectives.TorchCollective">distributed collectives, adopting the abstraction provided by Fabric's TorchCollective</a>.</p>
+<p align="center">
+  <img src="file:////media/jukebox/USB/sheeprl/assets/images/sheeprl_decoupled.png">
+</p>
+<h4 id="coupled">Coupled</h4>
+<p>The algorithm is implemented in the <code>&lt;algorithm&gt;.py</code> file.</p>
+<p>There are 2 functions inside this script:</p>
+<ul>
+<li><code>main()</code>: initializes all the components of the algorithm, and executes the interactions with the environment. Once enough data is collected, the training loop is executed by calling the <code>train()</code> function.</li>
+<li><code>train()</code>: executes the training loop. It samples a batch of data from the buffer, computes the loss, and updates the parameters of the agent.</li>
+</ul>
+<h4 id="decoupled">Decoupled</h4>
+<p>The decoupled version of an algorithm is implemented in the <code>&lt;algorithm&gt;_decoupled.py</code> file.</p>
+<p>There are 3 functions inside this script:</p>
+<ul>
+<li><code>main()</code>: initializes all the components of the algorithm, the collectives for the communication between the player and the trainers, and calls the <code>player()</code> and <code>trainer()</code> functions.</li>
+<li><code>player()</code>: executes the interactions with the environment. It samples an action from the policy network, executes it in the environment, and stores the transition in the buffer. After a predefined number of interactions with the environment, the player randomly splits the collected data into almost equal chunks and sends them separately to the trainers. It then waits for the trainers to finish the agent update.</li>
+<li><code>trainer()</code>: executes the training loop. It receives a chunk of data from the player, computes the loss, and updates the parameters of the agent. After the agent has been updated, the first of the trainers sends back the updated agent weights to the player, which can interact again with the environment.</li>
+</ul>
+<h2 id="algorithms-implementation">Algorithms implementation</h2>
+<p>You can check inside the folder of each algorithm the <code>README.md</code> file for the details about the implementation.</p>
+<p>All algorithms are kept as simple as possible, in a <a href="https://github.com/vwxyzjn/cleanrl">CleanRL</a> fashion. But to allow for more flexibility and also more clarity, we tried to abstract away anything that is not strictly related to the training loop of the algorithm.</p>
+<p>For example, we decided to create a <code>models</code> folder with already-made models that can be composed to create the model of the agent.</p>
+<p>For each algorithm, losses are kept in a separate module, so that their implementation is clear and can be easily utilized for the decoupled or the recurrent version of the algorithm.</p>
+<h2 id="card_index_dividers-buffer">:card_index_dividers: Buffer</h2>
+<p>For the buffer implementation, we choose to use a wrapper around a dictionary of Numpy arrays.</p>
+<p>To enable a simple way to work with numpy memory-mapped arrays, we implemented the <code>sheeprl.utils.memmap.MemmapArray</code>, a container that handles the memory-mapped arrays.</p>
+<p>This flexibility makes it very simple to implement, with the classes <code>ReplayBuffer</code>, <code>SequentialReplayBuffer</code>, <code>EpisodeBuffer</code>, and <code>EnvIndependentReplayBuffer</code>, all the buffers needed for on-policy and off-policy algorithms.</p>
+<h3 id="mag-technical-details">:mag: Technical details</h3>
+<p>The shape of the Numpy arrays in the dictionary is <code>(T, B, *)</code>, where <code>T</code> is the number of timesteps, <code>B</code> is the number of parallel environments, and <code>*</code> is the shape of the data.</p>
+<p>For the <code>ReplayBuffer</code> to be used as a RolloutBuffer, the proper <code>buffer_size</code> must be specified. For example, for PPO, the <code>buffer_size</code> must be <code>[T, B]</code>, where <code>T</code> is the number of timesteps and <code>B</code> is the number of parallel environments.</p>
+<h2 id="bow-contributing">:bow: Contributing</h2>
+<p>The best way to contribute is by opening an issue to discuss a new feature or a bug, or by opening a PR to fix a bug or to add a new feature.</p>
+<h2 id="mailbox_with_no_mail-contacts">:mailbox_with_no_mail: Contacts</h2>
+<p>You can contact us for any further questions or discussions:</p>
+<ul>
+<li>Federico Belotti: <a href="mailto:belo.fede@outlook.com">belo.fede@outlook.com</a></li>
+<li>Davide Angioni: <a href="mailto:davide.angioni@orobix.com">davide.angioni@orobix.com</a></li>
+<li>Refik Can Malli: <a href="mailto:refikcan.malli@orobix.com">refikcan.malli@orobix.com</a></li>
+<li>Michele Milesi: <a href="mailto:michele.milesi@orobix.com">michele.milesi@orobix.com</a></li>
+</ul>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>

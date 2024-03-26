@@ -22,9 +22,9 @@ from torch.distributions import Distribution, Independent
 from torch.optim import Optimizer
 from torchmetrics import SumMetric
 
-from sheeprl.algos.dreamer_v3.agent import PlayerDV3, WorldModel, build_agent
-from sheeprl.algos.dreamer_v3.loss import reconstruction_loss
-from sheeprl.algos.dreamer_v3.utils import Moments, compute_lambda_values, test
+from sheeprl.algos.dreamer_v3_masking.agent import PlayerDV3, WorldModelMasking, build_agent
+from sheeprl.algos.dreamer_v3_masking.loss import reconstruction_loss
+from sheeprl.algos.dreamer_v3_masking.utils import Moments, compute_lambda_values, test
 from sheeprl.data.buffers import EnvIndependentReplayBuffer, SequentialReplayBuffer
 from sheeprl.envs.wrappers import RestartOnException
 from sheeprl.utils.distribution import (
@@ -48,7 +48,7 @@ from sheeprl.utils.utils import polynomial_decay, save_configs
 
 def train(
     fabric: Fabric,
-    world_model: WorldModel,
+    world_model: WorldModelMasking,
     actor: _FabricModule,
     critic: _FabricModule,
     target_critic: torch.nn.Module,
@@ -177,15 +177,23 @@ def train(
     priors_logits = priors_logits.view(*priors_logits.shape[:-1], stochastic_size, discrete_size)
     posteriors_logits = posteriors_logits.view(*posteriors_logits.shape[:-1], stochastic_size, discrete_size)
 
+    pa = Independent(
+        OneHotCategoricalValidateArgs(logits=world_model.action_model(latent_states), validate_args=validate_args),
+        1,
+        validate_args=validate_args
+    )
+
     # World model optimization step. Eq. 4 in the paper
     world_optimizer.zero_grad(set_to_none=True)
-    rec_loss, kl, state_loss, reward_loss, observation_loss, continue_loss = reconstruction_loss(
+    rec_loss, kl, state_loss, reward_loss, action_loss, observation_loss, continue_loss = reconstruction_loss(
         po,
         batch_obs,
         pr,
         data["rewards"],
         priors_logits,
         posteriors_logits,
+        pa,
+        actions,
         cfg.algo.world_model.kl_dynamic,
         cfg.algo.world_model.kl_representation,
         cfg.algo.world_model.kl_free_nats,
@@ -339,6 +347,7 @@ def train(
         aggregator.update("Loss/world_model_loss", rec_loss.detach())
         aggregator.update("Loss/observation_loss", observation_loss.detach())
         aggregator.update("Loss/reward_loss", reward_loss.detach())
+        aggregator.update("Loss/action_loss", action_loss.detach())
         aggregator.update("Loss/state_loss", state_loss.detach())
         aggregator.update("Loss/continue_loss", continue_loss.detach())
         aggregator.update("State/kl", kl.mean().detach())

@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import torch
 from torch import Tensor
@@ -11,10 +11,14 @@ from sheeprl.utils.distribution import OneHotCategoricalStraightThroughValidateA
 def reconstruction_loss(
     po: Dict[str, Distribution],
     observations: Tensor,
+    obs_mask: Tensor,
     pr: Distribution,
     rewards: Tensor,
     priors_logits: Tensor,
     posteriors_logits: Tensor,
+    pa: Distribution,
+    actions: Tensor,
+    mask_scaling: List[int] = [0, 1],
     kl_dynamic: float = 0.5,
     kl_representation: float = 0.1,
     kl_free_nats: float = 1.0,
@@ -23,7 +27,7 @@ def reconstruction_loss(
     continue_targets: Optional[Tensor] = None,
     continue_scale_factor: float = 1.0,
     validate_args: bool = False,
-) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
+) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
     """
     Compute the reconstruction loss as described in Eq. 5 in
     [https://arxiv.org/abs/2301.04104](https://arxiv.org/abs/2301.04104).
@@ -63,8 +67,10 @@ def reconstruction_loss(
         reconstruction_loss (Tensor): the value of the overall reconstruction loss.
     """
     rewards.device
-    observation_loss = -sum([po[k].log_prob(observations[k]) for k in po.keys()])
+    mask = mask_scaling[0] + obs_mask * (mask_scaling[1] - mask_scaling[0])
+    observation_loss = -sum([po[k].log_prob(observations[k]) * mask for k in po.keys()])
     reward_loss = -pr.log_prob(rewards)
+    action_loss = -pa.log_prob(actions)
     # KL balancing
     dyn_loss = kl = kl_divergence(
         Independent(
@@ -100,12 +106,13 @@ def reconstruction_loss(
         continue_loss = continue_scale_factor * -pc.log_prob(continue_targets)
     else:
         continue_loss = torch.zeros_like(reward_loss)
-    reconstruction_loss = (kl_regularizer * kl_loss + observation_loss + reward_loss + continue_loss).mean()
+    reconstruction_loss = (kl_regularizer * kl_loss + observation_loss + reward_loss + action_loss + continue_loss).mean()
     return (
         reconstruction_loss,
         kl.mean(),
         kl_loss.mean(),
         reward_loss.mean(),
+        action_loss.mean(),
         observation_loss.mean(),
         continue_loss.mean(),
     )

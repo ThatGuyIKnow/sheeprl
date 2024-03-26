@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import gymnasium
 import hydra
@@ -15,7 +15,7 @@ from torch.distributions import Distribution, Independent, Normal, TanhTransform
 from torch.distributions.utils import probs_to_logits
 from torch.nn.modules import Module
 
-from sheeprl.algos.dreamer_v2.agent import WorldModel
+from sheeprl.algos.dreamer_v2.agent import RSSM, WorldModel
 from sheeprl.algos.dreamer_v2.utils import compute_stochastic_state
 from sheeprl.algos.dreamer_v3.utils import init_weights, uniform_init_weights
 from sheeprl.models.models import CNN, MLP, DeCNN, LayerNormGRUCell, MultiDecoder, MultiEncoder
@@ -44,12 +44,11 @@ def gkern(kernlen: int = 256, std: int = 128, vmin: float = 0, vmax: float = 1) 
     return gkern2d * (vmax - vmin) + vmin
 
 
-class Template(ScriptModule):
-    @script_method
-    def __init__(self, M: int, out_size: int, var: int,
+class Template(nn.Module):
+    def __init__(self, M: int, out_size: int, var: int, stride: int = 1,
                  cutoff: float = 0.2, initial_mixin_factor: float = 0.0,
                  device: torch.device = None):
-        super(Template, self).__init__()
+        super().__init__()
         # Initialize basic parameters
         self.out_size = out_size  # Template size
         self.channels = M  # Number of channels
@@ -59,12 +58,10 @@ class Template(ScriptModule):
         self.cutoff = cutoff  # Cutoff threshold for template values
         self.device = device  # Device to run the model on (CPU/GPU)
         self.var = var  # Variance, can be a range or a fixed value
-        
+        self.stride = stride # Distance between mean of filters
         # Initially create templates based on the current variance
         self.create_new_templates(self._curr_var())
 
-
-    @script_method
     def _curr_var(self) -> int:
         # Determine the current variance based on the mixin factor
         # If `var` is a fixed int, just return it. If it's a tuple, interpolate.
@@ -72,7 +69,6 @@ class Template(ScriptModule):
             return self.var
         return int(self.var[0] + self._mixin_factor * (self.var[1] - self.var[0]))
     
-    @script_method
     def set_mixin_factor(self, mixin_factor: float) -> None:
         # Update the mixin factor, ensuring it remains between 0 and 1
         self._mixin_factor = np.clip(mixin_factor, 0., 1.)
@@ -81,10 +77,7 @@ class Template(ScriptModule):
         if type(self.var) is not int:
             self.create_new_templates(self._curr_var())
 
-    @script_method
     def create_new_templates(self, var: int) -> None:
-        # Method to generate new templates based on given variance `var`
-        
         n_square = self.out_size * self.out_size  # Total number of pixels
         tau = 0.5 / n_square  # Scaling factor for templates
         alpha = n_square / (1 + n_square)  # Weight for positive template contribution
@@ -111,38 +104,20 @@ class Template(ScriptModule):
         p_T = [alpha / n_square for _ in range(n_square)]
         p_T.append(1 - alpha)  # Add probability for the negative template
         self.p_T = torch.FloatTensor(p_T).requires_grad_(False).to(self.device)
-        
-        # Identity mask for cases where mixin_factor is nearly 0
-        self.identity_mask = torch.ones_like(self.templates_f).requires_grad_(False).to(self.device)
 
-    @script_method
     def get_masked_output(self, x: Tensor) -> Tuple[Tensor, Tensor]:
-        # Apply the selected template to the input tensor `x`
-        if self._mixin_factor < 1e-10:
-            # If mixin_factor is almost 0, use the identity mask to avoid changing the input
-            m = self.identity_mask[0].repeat((x.shape[0], self.out_size, self.out_size))
-            return x, m  # Return the unchanged input and the mask used
-
         # For each element in the batch, find the max pool index to select the corresponding template
         _, indices = F.max_pool2d(x, self.out_size, return_indices=True)
         indices = indices.squeeze().long()
         
-        # Interpolate between the identity mask and the filtered templates based on mixin_factor
-        templates = torch.lerp(self.identity_mask, self.templates_f, self._mixin_factor)
         # Select templates for each index found by max pooling
-        selected_templates = torch.stack([templates[i] for i in indices], dim=0)
+        selected_templates = torch.stack([self.templates_f[i] for i in indices], dim=0)
 
         # Apply the selected templates to the input and return the masked input and the templates
         x_masked = F.relu(x * selected_templates)
         return x_masked, selected_templates
 
-    @script_method
     def compute_local_loss(self, x: Tensor) -> Tensor:  
-        # Calculate the local loss based on the interaction between input x and templates
-        if self._mixin_factor < 1e-10:
-            # If mixin factor is very small, return zero loss (no change intended)
-            return torch.zeros((x.shape[1], )).requires_grad_(True)
-
         # Calculate the tensor dot product between input x and templates, then softmax to get probabilities
         tr_x_T = torch.einsum('bcwh,twh->cbt', x, self.templates_b)
         p_x_T = F.softmax(tr_x_T, dim=1)
@@ -156,7 +131,6 @@ class Template(ScriptModule):
         loss = -torch.einsum('t,ct->c', self.p_T, p_x_T_log)
         return loss
 
-    @script_method
     def forward(self, x: Tensor, train: bool = True) -> Union[Tuple[Tensor, Tensor], Tensor]:
         # Main forward pass
         x, _ = self.get_masked_output(x)  # Get masked output based on the current mixin_factor
@@ -167,50 +141,117 @@ class Template(ScriptModule):
         return x  # For inference, just return the masked input
 
     
-class ActionPredictor(nn.Module):
-    def __init__(self, template_var=7, device=None):
+class WorldModelMasking(WorldModel):
+    def __init__(self, encoder: _FabricModule, rssm: RSSM, observation_model: _FabricModule, reward_model: _FabricModule, continue_model: _FabricModule | None, action_model: _FabricModule | None) -> None:
+        super().__init__(encoder, rssm, observation_model, reward_model, continue_model)
+        self.action_model = action_model
+        
+        
+        # keys: Sequence[str],
+        # input_channels: Sequence[int],
+        # image_size: Tuple[int, int],
+        # channels_multiplier: int,
+        # layer_norm: bool = True,
+        # 
+        # stages: int = 4,
+class ActionPredictor(nn.Module):    
+    def __init__(self, 
+                 input_dim: Sequence[int],
+                 action_dim: int,
+                 stages: Sequence[int],
+                 backbone_stages: Sequence[int],
+                 dense_units: Sequence[int],
+                 template_var: Union[int, Iterable[int]], 
+                 templates: int, 
+                 activation: ModuleType = nn.SiLU,
+                 layer_norm: bool = False,
+                 device=None):
         super().__init__()
+        self.input_channels = input_dim
+        self.preprocess = CNN(
+                input_channels=input_dim[0],
+                hidden_channels=stages,
+                cnn_layer=nn.Conv2d,
+                layer_args=[
+                    {"kernel_size": 8, "stride": 2, "padding": 4, "bias": True},
+                    {"kernel_size": 4, "padding": 2, "bias": True}
+                ],
+                activation=activation,
+                norm_layer=[LayerNormChannelLast for _ in range(len(stages))] if layer_norm else None,
+                norm_args=(
+                    [{"normalized_shape": hidden, "eps": 1e-3} for hidden in stages]
+                    if layer_norm
+                    else None
+                ),
+            )
+
+
+        with torch.no_grad():
+            self.template_size = self.preprocess(torch.rand((1, *input_dim))).shape[-1]
+        self.template_counts = templates
+        self.template = torch.jit.script(Template(M=templates, out_size=self.template_size, var=template_var, stride=2, device=device))
+        
         self.backbone = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=8, stride=4,  padding=4),
-            nn.LeakyReLU(),
-            nn.Conv2d(32, 32, kernel_size=4, padding=2),
-            nn.LeakyReLU()
+            CNN(
+                input_channels=templates,
+                hidden_channels=backbone_stages,
+                cnn_layer=nn.Conv2d,
+                layer_args=[
+                    {"kernel_size": 4, "stride": 2, "padding": 2, "bias": True},
+                    {"kernel_size": 4, "padding": 2, "bias": True}
+                ],
+                activation=activation,
+                norm_layer=[LayerNormChannelLast for _ in range(len(stages))] if layer_norm else None,
+                norm_args=(
+                    [{"normalized_shape": hidden, "eps": 1e-3} for hidden in backbone_stages]
+                    if layer_norm
+                    else None
+                ),
+            ),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Flatten()
         )
 
-        self.template = Template(M=32, out_size=23, var=template_var, device=device)
-        
-        self.pool1 = nn.MaxPool2d(2, stride=2)
-        self.fc1 = nn.Linear(32 * 11 * 11, 120)
-        self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Sequential(
-             nn.Linear(84, 4),
-             nn.Softmax()
-        )
+        with torch.no_grad():
+            self.cnn_output_size = self.backbone(torch.rand((1, templates, self.template_size, self.template_size))).shape[-1]
 
+        self.mlp = MLP(
+            self.cnn_output_size,
+            None,
+            dense_units + list(action_dim),
+            activation=activation,
+        )
         
-    def forward(self, x1, x2, mask=True, train=True):
-        x1 = self.backbone(x1[:, None, :, :])
-        x2 = self.backbone(x2[:, None, :, :])
-        
-        x = x1 - x2
-        
+    def _forward_prong(self, x, mask, train):
+        x = self.preprocess(x)
+
+        x = x.view(-1, self.template_size//self.template_counts, 
+                     self.template_counts, self.template_size, self.template_size).sum(1)
+
+        local_loss = 0
         if mask:
             x, local_loss = self.template(x, train=train)
 
-        x = self.pool1(x)
-        x = torch.flatten(x, dim=1)
+        return self.backbone(x), local_loss
+        
+    def forward(self, x1, x2, mask=True, train=True):
+        x1, local_loss1 = self._forward_prong(x1, mask, train)
+        x2, local_loss2 = self._forward_prong(x2, mask, train)
+        
+        x = x1 - x2
+        local_loss = local_loss1 + local_loss2
 
-        x = F.leaky_relu(self.fc1(x))
-        x = F.leaky_relu(self.fc2(x))
-        x = self.fc3(x)
+        x = self.mlp(x)
+
         return (x, local_loss) if mask else x
     
 
     def get_mask(self, x):
-        x = self.backbone(x[:, None, :, :])
+        x = self.preprocess(x)
         x, selected_templates = self.template.get_masked_output(x)
         return selected_templates
     
+
 
 class CNNEncoder(nn.Module):
     """The Dreamer-V3 image encoder. This is composed of 4 `nn.Conv2d` with
@@ -1191,7 +1232,7 @@ def build_agent(
     actor_state: Optional[Dict[str, Tensor]] = None,
     critic_state: Optional[Dict[str, Tensor]] = None,
     target_critic_state: Optional[Dict[str, Tensor]] = None,
-) -> Tuple[WorldModel, _FabricModule, _FabricModule, torch.nn.Module]:
+) -> Tuple[WorldModelMasking, _FabricModule, _FabricModule, torch.nn.Module]:
     """Build the models and wrap them with Fabric.
 
     Args:
@@ -1371,12 +1412,31 @@ def build_agent(
             else None
         ),
     )
-    world_model = WorldModel(
+
+    action_model = ActionPredictor(
+        input_dim=obs_space['rgb'].shape,
+        action_dim = actions_dim,
+        stages = world_model_cfg.action_model.stages,
+        backbone_stages = world_model_cfg.action_model.backbone_stages,
+        dense_units = world_model_cfg.action_model.dense_units,
+        template_var = world_model_cfg.action_model.template_var, 
+        templates = world_model_cfg.action_model.templates, 
+        activation = eval(world_model_cfg.action_model.cnn_act),
+        layer_norm = world_model_cfg.action_model.layer_norm)
+    
+    if world_model_cfg.action_model.pretrained_path is None:
+        action_model.apply(init_weights)
+    else:
+        action_model.load_state_dict(torch.load(world_model_cfg.action_model.pretrained_path))
+
+
+    world_model = WorldModelMasking(
         encoder.apply(init_weights),
         rssm,
         observation_model.apply(init_weights),
         reward_model.apply(init_weights),
         continue_model.apply(init_weights),
+        action_model
     )
     actor_cls = hydra.utils.get_class(cfg.algo.actor.cls)
     actor: nn.Module = actor_cls(

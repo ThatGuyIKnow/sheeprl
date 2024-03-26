@@ -398,7 +398,7 @@ def main(fabric: Fabric, cfg: Dict[str, Any]):
     device = fabric.device
     rank = fabric.global_rank
     world_size = fabric.world_size
-    fabric._callbacks.append(NarrowTemplateCallback(1., 0., 100000, 300000))
+    fabric._callbacks.append(NarrowTemplateCallback(1., 0., 50000, 200000))
 
     if cfg.checkpoint.resume_from:
         state = fabric.load(cfg.checkpoint.resume_from)

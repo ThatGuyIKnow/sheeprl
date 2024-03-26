@@ -177,7 +177,7 @@ def train(
     # Reshape posterior and prior logits to shape [B, T, 32, 32]
     priors_logits = priors_logits.view(*priors_logits.shape[:-1], stochastic_size, discrete_size)
     posteriors_logits = posteriors_logits.view(*posteriors_logits.shape[:-1], stochastic_size, discrete_size)
-    action_logits, local_loss = world_model.action_model(batch_obs['rgb'], batch_obs['next_rgb'])
+    action_logits, obs_mask, _, local_loss = world_model.action_model(batch_obs['rgb'], batch_obs['next_rgb'])
     pa = Independent(
         OneHotCategoricalValidateArgs(logits=action_logits, validate_args=validate_args),
         1,
@@ -187,22 +187,23 @@ def train(
     # World model optimization step. Eq. 4 in the paper
     world_optimizer.zero_grad(set_to_none=True)
     rec_loss, kl, state_loss, reward_loss, action_loss, observation_loss, continue_loss = reconstruction_loss(
-        po,
-        batch_obs,
-        pr,
-        data["rewards"],
-        priors_logits,
-        posteriors_logits,
-        pa,
-        data['actions'],
-        [0.1, 1],
-        cfg.algo.world_model.kl_dynamic,
-        cfg.algo.world_model.kl_representation,
-        cfg.algo.world_model.kl_free_nats,
-        cfg.algo.world_model.kl_regularizer,
-        pc,
-        continue_targets,
-        cfg.algo.world_model.continue_scale_factor,
+        po=po,
+        observations=batch_obs,
+        obs_mask=obs_mask,
+        pr=pr,
+        rewards=data["rewards"],
+        priors_logits=priors_logits,
+        posteriors_logits=posteriors_logits,
+        pa=pa,
+        actions=data['actions'],
+        mask_scaling=[0.1, 1],
+        kl_dynamic=cfg.algo.world_model.kl_dynamic,
+        kl_representation=cfg.algo.world_model.kl_representation,
+        kl_free_nats=cfg.algo.world_model.kl_free_nats,
+        kl_regularizer=cfg.algo.world_model.kl_regularizer,
+        pc=pc,
+        continue_targets=continue_targets,
+        continue_scale_factor=cfg.algo.world_model.continue_scale_factor,
         validate_args=validate_args,
     )
     rec_loss += local_loss.sum()

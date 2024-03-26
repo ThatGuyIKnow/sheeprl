@@ -133,12 +133,12 @@ class Template(nn.Module):
 
     def forward(self, x: Tensor, train: bool = True) -> Union[Tuple[Tensor, Tensor], Tensor]:
         # Main forward pass
-        x, _ = self.get_masked_output(x)  # Get masked output based on the current mixin_factor
+        x, obs_mask = self.get_masked_output(x)  # Get masked output based on the current mixin_factor
         if train:
             # If training, also compute the local loss
             loss_1 = self.compute_local_loss(x)
-            return x, loss_1  # Return the masked input and the computed loss
-        return x  # For inference, just return the masked input
+            return x, obs_mask, loss_1  # Return the masked input and the computed loss
+        return x, obs_mask # For inference, just return the masked input
 
     
 class WorldModelMasking(WorldModel):
@@ -231,20 +231,20 @@ class ActionPredictor(nn.Module):
 
         local_loss = 0
         if mask:
-            x, local_loss = self.template(x, train=train)
+            x, obs_mask, local_loss = self.template(x, train=train)
 
-        return self.backbone(x), local_loss
+        return self.backbone(x), obs_mask, local_loss
         
     def forward(self, x1, x2, mask=True, train=True):
-        x1, local_loss1 = self._forward_prong(x1, mask, train)
-        x2, local_loss2 = self._forward_prong(x2, mask, train)
+        x1, obs_mask1, local_loss1 = self._forward_prong(x1, mask, train)
+        x2, obs_mask2, local_loss2 = self._forward_prong(x2, mask, train)
         
         x = x1 - x2
         local_loss = local_loss1 + local_loss2
 
         x = self.mlp(x)
 
-        return (x, local_loss) if mask and train else x
+        return (x, obs_mask1, obs_mask2, local_loss) if mask and train else (x, obs_mask1, obs_mask2)
     
 
     def get_mask(self, x):

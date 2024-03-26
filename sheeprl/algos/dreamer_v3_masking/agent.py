@@ -62,7 +62,7 @@ class Template(nn.Module):
         # Initially create templates based on the current variance
         self.create_new_templates(self._curr_var())
 
-    def _curr_var(self, mixin: float | None) -> int:
+    def _curr_var(self, mixin: float | None = None) -> int:
         # Determine the current variance based on the mixin factor
         # If `var` is a fixed int, just return it. If it's a tuple, interpolate.
         if type(self.var) is int:

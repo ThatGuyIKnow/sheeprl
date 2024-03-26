@@ -234,7 +234,8 @@ class ActionPredictor(nn.Module):
         if mask:
             x, obs_mask, local_loss = self.template(x, train=train)
 
-        obs_mask = obs_mask.sum(dim=1, keepdim=True).view(shape[:2] + (1,) + shape[-2:])
+        obs_mask = obs_mask.sum(dim=1, keepdim=True)
+        obs_mask = F.upsample_nearest(obs_mask, shape[-2:]).view(shape[:2] + (1,) + shape[-2:])
         print(obs_mask.shape)
         return self.backbone(x), obs_mask, local_loss
         

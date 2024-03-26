@@ -177,7 +177,7 @@ def train(
     # Reshape posterior and prior logits to shape [B, T, 32, 32]
     priors_logits = priors_logits.view(*priors_logits.shape[:-1], stochastic_size, discrete_size)
     posteriors_logits = posteriors_logits.view(*posteriors_logits.shape[:-1], stochastic_size, discrete_size)
-    print(batch_obs['rgb'].shape, batch_obs['next_rgb'].shape)
+    print(data.keys())
     action_logits, local_loss = world_model.action_model(batch_obs['rgb'], batch_obs['next_rgb'])
     pa = Independent(
         OneHotCategoricalValidateArgs(logits=action_logits, validate_args=validate_args),
@@ -195,7 +195,7 @@ def train(
         priors_logits,
         posteriors_logits,
         pa,
-        actions,
+        data['action'],
         cfg.algo.world_model.kl_dynamic,
         cfg.algo.world_model.kl_representation,
         cfg.algo.world_model.kl_free_nats,

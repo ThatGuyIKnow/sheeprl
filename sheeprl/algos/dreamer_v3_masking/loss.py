@@ -71,7 +71,6 @@ def reconstruction_loss(
     observation_loss = -sum([po[k].log_prob(interp_to_mode(po[k], observations[k], mask)) for k in po.keys()])
     reward_loss = -pr.log_prob(rewards)
     action_loss = -pa.log_prob(actions)
-    print(action_loss.shape, pa.sample().shape, actions.shape, reward_loss.shape, rewards.shape)
     # KL balancing
     dyn_loss = kl = kl_divergence(
         Independent(

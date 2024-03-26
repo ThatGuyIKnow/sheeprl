@@ -100,8 +100,7 @@ def train(
     print(data.keys())
     batch_obs = {k: data[k] / 255.0 - 0.5 for k in cfg.algo.cnn_keys.encoder}
     batch_obs.update({k: data[k] for k in cfg.algo.mlp_keys.encoder})
-    batch_next_obs = {k: data['next_'+k] / 255.0 - 0.5 for k in cfg.algo.cnn_keys.encoder}
-    batch_next_obs.update({k: data['next_'+k] for k in cfg.algo.mlp_keys.encoder})
+    batch_obs.update({k: data['next_'+k] / 255.0 - 0.5 for k in cfg.algo.cnn_keys.encoder})
     data["is_first"][0, :] = torch.ones_like(data["is_first"][0, :])
 
     # Given how the environment interaction works, we remove the last actions
@@ -179,9 +178,9 @@ def train(
     # Reshape posterior and prior logits to shape [B, T, 32, 32]
     priors_logits = priors_logits.view(*priors_logits.shape[:-1], stochastic_size, discrete_size)
     posteriors_logits = posteriors_logits.view(*posteriors_logits.shape[:-1], stochastic_size, discrete_size)
-    print(batch_obs['rgb'].shape, batch_next_obs['next_rgb'].shape)
+    print(batch_obs['rgb'].shape, batch_obs['next_rgb'].shape)
     pa = Independent(
-        OneHotCategoricalValidateArgs(logits=world_model.action_model(batch_obs['rgb'], batch_next_obs['next_rgb']), validate_args=validate_args),
+        OneHotCategoricalValidateArgs(logits=world_model.action_model(batch_obs['rgb'], batch_obs['next_rgb']), validate_args=validate_args),
         1,
         validate_args=validate_args
     )

@@ -178,7 +178,7 @@ def train(
     priors_logits = priors_logits.view(*priors_logits.shape[:-1], stochastic_size, discrete_size)
     posteriors_logits = posteriors_logits.view(*posteriors_logits.shape[:-1], stochastic_size, discrete_size)
     action_logits, obs_mask, _, local_loss = world_model.action_model(batch_obs['rgb'], batch_obs['next_rgb'])
-    print(action_logits.shape, world_model.continue_model(latent_states).shape)
+    print(action_logits.shape, world_model.continue_model(latent_states).shape, validate_args)
     pa = Independent(
         OneHotCategoricalValidateArgs(logits=action_logits, validate_args=validate_args),
         1,

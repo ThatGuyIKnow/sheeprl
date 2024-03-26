@@ -5,7 +5,7 @@ from torch import Tensor
 from torch.distributions import Distribution, Independent
 from torch.distributions.kl import kl_divergence
 
-from sheeprl.utils.distribution import OneHotCategoricalStraightThroughValidateArgs
+from sheeprl.utils.distribution import OneHotCategoricalStraightThroughValidateArgs, interp_to_mode
 
 
 def reconstruction_loss(
@@ -68,7 +68,7 @@ def reconstruction_loss(
     """
     rewards.device
     mask = mask_scaling[0] + obs_mask * (mask_scaling[1] - mask_scaling[0])
-    observation_loss = -sum([po[k].log_prob(observations[k]) * mask for k in po.keys()])
+    observation_loss = -sum([po[k].log_prob(interp_to_mode(po[k], observations[k], mask)) for k in po.keys()])
     reward_loss = -pr.log_prob(rewards)
     action_loss = -pa.log_prob(actions)
     # KL balancing

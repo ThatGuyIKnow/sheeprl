@@ -2,7 +2,7 @@
 
 import math
 from numbers import Number
-from typing import Callable
+from typing import Callable, Union
 
 import torch
 import torch.nn.functional as F
@@ -20,6 +20,7 @@ CONST_LOG_INV_SQRT_2PI = math.log(CONST_INV_SQRT_2PI)
 CONST_LOG_SQRT_2PI_E = 0.5 * math.log(2 * math.pi * math.e)
 
 __all__ = ["OneHotCategoricalValidateArgs", "OneHotCategoricalStraightThroughValidateArgs"]
+
 
 
 class TruncatedStandardNormal(Distribution):
@@ -412,3 +413,9 @@ class BernoulliSafeMode(Bernoulli):
     def mode(self):
         mode = (self.probs > 0.5).to(self.probs)
         return mode
+
+def interp_to_mode(p: Union[Distribution, MSEDistribution], value: Tensor, factor: Tensor):
+    start = value
+    end = p.mode
+
+    return start + (end - start) * factor

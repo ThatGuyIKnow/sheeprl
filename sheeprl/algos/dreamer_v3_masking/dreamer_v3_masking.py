@@ -179,9 +179,9 @@ def train(
     # Reshape posterior and prior logits to shape [B, T, 32, 32]
     priors_logits = priors_logits.view(*priors_logits.shape[:-1], stochastic_size, discrete_size)
     posteriors_logits = posteriors_logits.view(*posteriors_logits.shape[:-1], stochastic_size, discrete_size)
-
+    print(batch_obs['rgb'].shape, batch_next_obs['next_rgb'].shape)
     pa = Independent(
-        OneHotCategoricalValidateArgs(logits=world_model.action_model(batch_obs, batch_next_obs), validate_args=validate_args),
+        OneHotCategoricalValidateArgs(logits=world_model.action_model(batch_obs['rgb'], batch_next_obs['next_rgb']), validate_args=validate_args),
         1,
         validate_args=validate_args
     )

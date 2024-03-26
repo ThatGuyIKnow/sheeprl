@@ -223,7 +223,7 @@ class ActionPredictor(nn.Module):
         )
         
     def _forward_prong(self, x, mask, train):
-        x = x.view(-1, *self.input_channels)
+        x = x.view(-1, *self.input_dim)
         x = self.preprocess(x)
 
         x = x.view(-1, self.template_size//self.template_counts, 

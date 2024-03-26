@@ -223,6 +223,7 @@ class ActionPredictor(nn.Module):
         )
         
     def _forward_prong(self, x, mask, train):
+        shape = x.shape
         x = x.reshape(-1, *self.input_dim)
         x = self.preprocess(x)
 
@@ -233,7 +234,7 @@ class ActionPredictor(nn.Module):
         if mask:
             x, obs_mask, local_loss = self.template(x, train=train)
 
-        return self.backbone(x), obs_mask, local_loss
+        return self.backbone(x), obs_mask.view(shape), local_loss
         
     def forward(self, x1, x2, mask=True, train=True):
         x1, obs_mask1, local_loss1 = self._forward_prong(x1, mask, train)

@@ -178,8 +178,9 @@ def train(
     priors_logits = priors_logits.view(*priors_logits.shape[:-1], stochastic_size, discrete_size)
     posteriors_logits = posteriors_logits.view(*posteriors_logits.shape[:-1], stochastic_size, discrete_size)
     print(batch_obs['rgb'].shape, batch_obs['next_rgb'].shape)
+    action_logits, local_loss = world_model.action_model(batch_obs['rgb'], batch_obs['next_rgb'])
     pa = Independent(
-        OneHotCategoricalValidateArgs(logits=world_model.action_model(batch_obs['rgb'], batch_obs['next_rgb']), validate_args=validate_args),
+        OneHotCategoricalValidateArgs(logits=action_logits, validate_args=validate_args),
         1,
         validate_args=validate_args
     )
@@ -204,6 +205,7 @@ def train(
         cfg.algo.world_model.continue_scale_factor,
         validate_args=validate_args,
     )
+    rec_loss += local_loss.sum()
     fabric.backward(rec_loss)
     world_model_grads = None
     if cfg.algo.world_model.clip_gradients is not None and cfg.algo.world_model.clip_gradients > 0:

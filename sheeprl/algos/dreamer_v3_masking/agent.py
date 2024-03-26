@@ -149,13 +149,6 @@ class WorldModelMasking(WorldModel):
         self.action_model = action_model
         
         
-        # keys: Sequence[str],
-        # input_channels: Sequence[int],
-        # image_size: Tuple[int, int],
-        # channels_multiplier: int,
-        # layer_norm: bool = True,
-        # 
-        # stages: int = 4,
 class ActionPredictor(nn.Module):    
     def __init__(self, 
                  input_dim: Sequence[int],
@@ -1434,7 +1427,8 @@ def build_agent(
         template_var = world_model_cfg.action_model.template_var, 
         templates = world_model_cfg.action_model.templates, 
         activation = eval(world_model_cfg.action_model.cnn_act),
-        layer_norm = world_model_cfg.action_model.layer_norm)
+        layer_norm = world_model_cfg.action_model.layer_norm
+        device=fabric.device)
     
     if world_model_cfg.action_model.pretrained_path is None:
         action_model.apply(init_weights)

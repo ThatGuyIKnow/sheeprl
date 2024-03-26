@@ -99,6 +99,8 @@ def train(
     device = fabric.device
     batch_obs = {k: data[k] / 255.0 - 0.5 for k in cfg.algo.cnn_keys.encoder}
     batch_obs.update({k: data[k] for k in cfg.algo.mlp_keys.encoder})
+    batch_next_obs = {k: data['next_'+k] / 255.0 - 0.5 for k in cfg.algo.cnn_keys.encoder}
+    batch_next_obs.update({k: data['next_'+k] for k in cfg.algo.mlp_keys.encoder})
     data["is_first"][0, :] = torch.ones_like(data["is_first"][0, :])
 
     # Given how the environment interaction works, we remove the last actions
@@ -178,7 +180,7 @@ def train(
     posteriors_logits = posteriors_logits.view(*posteriors_logits.shape[:-1], stochastic_size, discrete_size)
 
     pa = Independent(
-        OneHotCategoricalValidateArgs(logits=world_model.action_model(latent_states), validate_args=validate_args),
+        OneHotCategoricalValidateArgs(logits=world_model.action_model(batch_obs, batch_next_obs), validate_args=validate_args),
         1,
         validate_args=validate_args
     )
@@ -702,6 +704,7 @@ def main(fabric: Fabric, cfg: Dict[str, Any]):
             local_data = rb.sample_tensors(
                 cfg.algo.per_rank_batch_size,
                 sequence_length=cfg.algo.per_rank_sequence_length,
+                sample_next_obs=True,
                 n_samples=(
                     cfg.algo.per_rank_pretrain_steps if update == learning_starts else cfg.algo.per_rank_gradient_steps
                 ),

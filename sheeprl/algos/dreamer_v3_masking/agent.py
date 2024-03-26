@@ -131,7 +131,7 @@ class Template(nn.Module):
         loss = -torch.einsum('t,ct->c', self.p_T, p_x_T_log)
         return loss
 
-    def forward(self, x: Tensor, train: bool = True) -> Union[Tuple[Tensor, Tensor], Tensor]:
+    def forward(self, x: Tensor, train: bool = True) -> Union[Tuple[Tensor, Tensor, Tensor, Tensor], Tuple[Tensor, Tensor, Tensor]]:
         # Main forward pass
         x, obs_mask = self.get_masked_output(x)  # Get masked output based on the current mixin_factor
         if train:

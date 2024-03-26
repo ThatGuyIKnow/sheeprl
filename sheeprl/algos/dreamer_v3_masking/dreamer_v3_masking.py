@@ -97,7 +97,7 @@ def train(
     stochastic_size = cfg.algo.world_model.stochastic_size
     discrete_size = cfg.algo.world_model.discrete_size
     device = fabric.device
-    print(data.keys())
+    print(data.keys(), cfg.algo.cnn_keys.encoder)
     batch_obs = {k: data[k] / 255.0 - 0.5 for k in cfg.algo.cnn_keys.encoder}
     batch_obs.update({k: data[k] for k in cfg.algo.mlp_keys.encoder})
     batch_obs.update({k: data['next_'+k] / 255.0 - 0.5 for k in cfg.algo.cnn_keys.encoder})

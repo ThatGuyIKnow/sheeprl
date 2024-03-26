@@ -1427,7 +1427,7 @@ def build_agent(
         template_var = world_model_cfg.action_model.template_var, 
         templates = world_model_cfg.action_model.templates, 
         activation = eval(world_model_cfg.action_model.cnn_act),
-        layer_norm = world_model_cfg.action_model.layer_norm
+        layer_norm = world_model_cfg.action_model.layer_norm,
         device=fabric.device)
     
     if world_model_cfg.action_model.pretrained_path is None:

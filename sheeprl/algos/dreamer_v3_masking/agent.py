@@ -233,7 +233,7 @@ class ActionPredictor(nn.Module):
         local_loss = 0
         if mask:
             x, obs_mask, local_loss = self.template(x, train=train)
-
+        print(obs_mask.shape)
         return self.backbone(x), obs_mask.view(shape), local_loss
         
     def forward(self, x1, x2, mask=True, train=True):

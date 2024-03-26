@@ -168,6 +168,7 @@ class ActionPredictor(nn.Module):
                  device=None):
         super().__init__()
         self.input_dim = input_dim
+        self.action_dim = action_dim
         self.preprocess = CNN(
                 input_channels=input_dim[0],
                 hidden_channels=stages,
@@ -240,6 +241,8 @@ class ActionPredictor(nn.Module):
         return self.backbone(x), obs_mask, local_loss
         
     def forward(self, x1, x2, mask=True, train=True):
+        shape = x1.shape
+
         x1, obs_mask1, local_loss1 = self._forward_prong(x1, mask, train)
         x2, obs_mask2, local_loss2 = self._forward_prong(x2, mask, train)
         
@@ -247,6 +250,8 @@ class ActionPredictor(nn.Module):
         local_loss = local_loss1 + local_loss2
 
         x = self.mlp(x)
+        print(x.shape, shape, self.action_dim)
+        x = x.view(shape[:2] + list(self.action_dim))
 
         return (x, obs_mask1, obs_mask2, local_loss) if mask and train else (x, obs_mask1, obs_mask2)
     

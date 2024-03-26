@@ -167,7 +167,7 @@ class ActionPredictor(nn.Module):
                  layer_norm: bool = False,
                  device=None):
         super().__init__()
-        self.input_channels = input_dim
+        self.input_dim = input_dim
         self.preprocess = CNN(
                 input_channels=input_dim[0],
                 hidden_channels=stages,
@@ -223,6 +223,7 @@ class ActionPredictor(nn.Module):
         )
         
     def _forward_prong(self, x, mask, train):
+        x = x.view(-1, *self.input_channels)
         x = self.preprocess(x)
 
         x = x.view(-1, self.template_size//self.template_counts, 

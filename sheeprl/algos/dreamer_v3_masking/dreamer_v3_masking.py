@@ -195,6 +195,7 @@ def train(
         posteriors_logits,
         pa,
         data['actions'],
+        [0.1, 1],
         cfg.algo.world_model.kl_dynamic,
         cfg.algo.world_model.kl_representation,
         cfg.algo.world_model.kl_free_nats,

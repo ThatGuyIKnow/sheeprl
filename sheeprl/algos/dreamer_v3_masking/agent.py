@@ -244,7 +244,7 @@ class ActionPredictor(nn.Module):
 
         x = self.mlp(x)
 
-        return (x, local_loss) if mask else x
+        return (x, local_loss) if mask and train else x
     
 
     def get_mask(self, x):

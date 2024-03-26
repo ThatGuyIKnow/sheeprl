@@ -24,7 +24,7 @@ from torchmetrics import SumMetric
 
 from sheeprl.algos.dreamer_v3_masking.agent import PlayerDV3, WorldModelMasking, build_agent
 from sheeprl.algos.dreamer_v3_masking.loss import reconstruction_loss
-from sheeprl.algos.dreamer_v3_masking.utils import Moments, compute_lambda_values, test
+from sheeprl.algos.dreamer_v3_masking.utils import Moments, NarrowTemplateCallback, compute_lambda_values, test
 from sheeprl.data.buffers import EnvIndependentReplayBuffer, SequentialReplayBuffer
 from sheeprl.envs.wrappers import RestartOnException
 from sheeprl.utils.distribution import (
@@ -398,6 +398,7 @@ def main(fabric: Fabric, cfg: Dict[str, Any]):
     device = fabric.device
     rank = fabric.global_rank
     world_size = fabric.world_size
+    fabric._callbacks.append(NarrowTemplateCallback(1., 0., 100000, 300000))
 
     if cfg.checkpoint.resume_from:
         state = fabric.load(cfg.checkpoint.resume_from)

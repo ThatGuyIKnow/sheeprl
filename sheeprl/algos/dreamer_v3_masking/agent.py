@@ -62,20 +62,22 @@ class Template(nn.Module):
         # Initially create templates based on the current variance
         self.create_new_templates(self._curr_var())
 
-    def _curr_var(self) -> int:
+    def _curr_var(self, mixin: float | None) -> int:
         # Determine the current variance based on the mixin factor
         # If `var` is a fixed int, just return it. If it's a tuple, interpolate.
         if type(self.var) is int:
             return self.var
-        return int(self.var[0] + self._mixin_factor * (self.var[1] - self.var[0]))
+        mixin = self._mixin_factor if mixin is None else mixin
+        return int(self.var[0] + mixin * (self.var[1] - self.var[0]))
     
     def set_mixin_factor(self, mixin_factor: float) -> None:
         # Update the mixin factor, ensuring it remains between 0 and 1
-        self._mixin_factor = np.clip(mixin_factor, 0., 1.)
+        _mixin_factor = np.clip(mixin_factor, 0., 1.)
 
         # If `var` is not a fixed value, recreate templates with the new variance
-        if type(self.var) is not int:
+        if type(self.var) is not int and self._curr_var() != self._curr_var(_mixin_factor):
             self.create_new_templates(self._curr_var())
+        self._mixin_factor = _mixin_factor
 
     def create_new_templates(self, var: int) -> None:
         n_square = self.out_size * self.out_size  # Total number of pixels
@@ -142,7 +144,7 @@ class Template(nn.Module):
 
     
 class WorldModelMasking(WorldModel):
-    def __init__(self, encoder: _FabricModule, rssm: RSSM, observation_model: _FabricModule, reward_model: _FabricModule, continue_model: _FabricModule | None, action_model: _FabricModule | None) -> None:
+    def __init__(self, encoder: _FabricModule, rssm: RSSM, observation_model: _FabricModule, reward_model: _FabricModule, continue_model: _FabricModule | None, action_model: ActionPredictor | None) -> None:
         super().__init__(encoder, rssm, observation_model, reward_model, continue_model)
         self.action_model = action_model
         

@@ -5,9 +5,11 @@ from typing import TYPE_CHECKING, Any, Dict, Sequence
 import gymnasium as gym
 import numpy as np
 import torch
+import lightning as L
 from lightning import Fabric
 from torch import Tensor, nn
 
+from sheeprl.algos.dreamer_v3_masking.agent import WorldModelMasking
 from sheeprl.utils.env import make_env
 from sheeprl.utils.imports import _IS_MLFLOW_AVAILABLE
 from sheeprl.utils.utils import unwrap_fabric
@@ -37,6 +39,31 @@ AGGREGATOR_KEYS = {
 }
 MODELS_TO_REGISTER = {"world_model", "actor", "critic", "target_critic", "moments"}
 
+
+class NarrowTemplateCallback(L.Callback):
+    def __init__(self, initial: float, final: float, start_step: int, duration: int):
+        
+        self.step = 0
+        self.initial = initial
+        self.final = final
+        self.start_step = start_step
+        self.duration = duration
+        self.final_step = start_step + duration
+
+    @property
+    def _mixin(self) -> float:
+        if self.step < self.start_step:
+            return self.initial
+        elif self.step > self.final_step:
+            return self.final
+        
+        p = np.clip((self.step - self.start_step) / self.duration, 0., 1.)
+        return self.initial + p * (self.final - self.initial)
+        
+
+    def on_train_batch_end(self, trainer, pl_module: WorldModelMasking, outputs, batch, batch_idx) -> None:
+        self.step += 1
+        pl_module.action_model.template.set_mixin_factor(self._mixin)
 
 class Moments(nn.Module):
     def __init__(

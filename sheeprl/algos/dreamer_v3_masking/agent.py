@@ -218,6 +218,10 @@ class ActionPredictor(nn.Module):
             activation=activation,
         )
         
+        self.preprocess.to(device)
+        self.backbone.to(device)
+        self.mlp.to(device)
+        
     def _forward_prong(self, x, mask, train):
         shape = x.shape
         x = x.reshape(-1, *self.input_dim)

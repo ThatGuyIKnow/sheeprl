@@ -251,7 +251,7 @@ class ActionPredictor(nn.Module):
 
         x = self.mlp(x)
         print(x.shape, shape, self.action_dim)
-        x = x.view(shape[:2] + list(self.action_dim))
+        x = x.view(shape[:2] + self.action_dim)
 
         return (x, obs_mask1, obs_mask2, local_loss) if mask and train else (x, obs_mask1, obs_mask2)
     

@@ -6,19 +6,19 @@ torch_use_deterministic_algorithms: false
 torch_backends_cudnn_benchmark: true
 torch_backends_cudnn_deterministic: false
 cublas_workspace_config: null
-exp_name: ppo_CartPole-v1
-run_name: 2024-03-25_10-11-35_ppo_CartPole-v1_42
-root_dir: ppo/CartPole-v1
+exp_name: ppo_coinrun
+run_name: 2024-03-27_10-47-17_ppo_coinrun_42
+root_dir: ppo/coinrun
 algo:
   name: ppo
   total_steps: 65536
   per_rank_batch_size: 64
   run_test: true
   cnn_keys:
-    encoder: []
-  mlp_keys:
     encoder:
-    - state
+    - rgb
+  mlp_keys:
+    encoder: []
   optimizer:
     _target_: torch.optim.Adam
     lr: 0.001
@@ -76,7 +76,7 @@ checkpoint:
 distribution:
   validate_args: false
 env:
-  id: CartPole-v1
+  id: coinrun
   num_envs: 4
   frame_stack: 1
   sync_env: false
@@ -89,10 +89,9 @@ env:
   max_episode_steps: null
   reward_as_observation: false
   wrapper:
-    _target_: gymnasium.make
-    id: CartPole-v1
-    render_mode: rgb_array
-  mask_velocities: false
+    _target_: sheeprl.envs.procgen.ProcgenWrapper
+    id: coinrun
+    seed: 42
 fabric:
   _target_: lightning.fabric.Fabric
   devices: 1
@@ -129,7 +128,7 @@ metric:
         sync_on_compute: false
   logger:
     _target_: wandb.integration.lightning.fabric.WandbLogger
-    name: 2024-03-25_10-11-35_ppo_CartPole-v1_42
+    name: 2024-03-27_10-47-17_ppo_coinrun_42
     version: null
     prefix: ''
     log_model: all
@@ -137,6 +136,6 @@ model_manager:
   disabled: true
   models:
     agent:
-      model_name: ppo_CartPole-v1_agent
-      description: PPO Agent in CartPole-v1 Environment
+      model_name: ppo_coinrun_agent
+      description: PPO Agent in coinrun Environment
       tags: {}

@@ -1,0 +1,30 @@
+# @package _global_
+
+defaults:
+  - dreamer_v3
+  - override /algo: dreamer_v3_S
+  - override /env: procgen
+  - _self_
+
+# Experiment
+seed: 42
+
+# Environment
+env:
+  num_envs: 8
+  id: bossfight
+
+# Checkpoint
+checkpoint:
+  every: 100000
+
+# Buffer
+buffer:
+  size: 100000
+  checkpoint: True
+
+# Algorithm
+algo:
+  learning_starts: 1024
+  total_steps: 1000000
+  train_every: 1

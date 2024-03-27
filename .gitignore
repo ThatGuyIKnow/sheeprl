@@ -176,3 +176,4 @@ bin/
 *.ckpt
 *.mp4
 *.memmap
+wandb/

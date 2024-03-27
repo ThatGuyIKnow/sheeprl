@@ -4,10 +4,11 @@ from collections import deque
 from typing import Any, Callable, Dict, List, Optional, Sequence, SupportsFloat, Tuple, Union
 
 import gymnasium as gym
+import gym as gym_
 import numpy as np
 from gymnasium.core import Env, RenderFrame
 
-class LimitActions(gym.ActionWrapper):
+class LimitActions(gym_.ActionWrapper):
     def __init__(self, env: gym.Env, actions: List[int]):
         super().__init__(env)
 

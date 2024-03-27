@@ -9,8 +9,6 @@ from gymnasium.core import Env, RenderFrame
 
 class LimitActions(gym.ActionWrapper):
     def __init__(self, env: gym.Env, actions: List[int]):
-        assert isinstance(env.action_space, gym.spaces.Discrete)
-
         super().__init__(env)
 
         self.action_space = gym.spaces.Discrete(len(actions))

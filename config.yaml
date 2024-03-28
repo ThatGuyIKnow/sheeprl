@@ -7,7 +7,7 @@ torch_backends_cudnn_benchmark: true
 torch_backends_cudnn_deterministic: false
 cublas_workspace_config: null
 exp_name: ppo_coinrun
-run_name: 2024-03-27_10-47-17_ppo_coinrun_42
+run_name: 2024-03-28_18-41-23_ppo_coinrun_42
 root_dir: ppo/coinrun
 algo:
   name: ppo
@@ -92,6 +92,11 @@ env:
     _target_: sheeprl.envs.procgen.ProcgenWrapper
     id: coinrun
     seed: 42
+    deterministic: true
+    num_levels: 1
+    distribution_mode: easy
+    center_agent: true
+  video_freq: 10
 fabric:
   _target_: lightning.fabric.Fabric
   devices: 1
@@ -128,10 +133,11 @@ metric:
         sync_on_compute: false
   logger:
     _target_: wandb.integration.lightning.fabric.WandbLogger
-    name: 2024-03-27_10-47-17_ppo_coinrun_42
+    name: 2024-03-28_18-41-23_ppo_coinrun_42
     version: null
     prefix: ''
     log_model: all
+    monitor_gym: true
 model_manager:
   disabled: true
   models:

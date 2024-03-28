@@ -15,7 +15,7 @@ env:
   id: bossfight
   num_levels: 1
   deterministic: True
-  distribution_mode: "easy"
+  distribution_mode: "easy" 
 
 # Checkpoint
 checkpoint:

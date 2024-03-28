@@ -3,3 +3,4 @@ name: ${run_name}
 version: null
 prefix: ""
 log_model: all
+monitor_gym: True

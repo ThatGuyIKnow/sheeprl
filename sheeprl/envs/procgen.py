@@ -34,14 +34,16 @@ __NO_OP__ = [4, ]
 __WASD__ = [9, 10, 11, 12]
 __ACTION_KEYS = [13, 14]
 
-def get_procgen_wrapper(id: str):
+def get_procgen_wrapper(env: str):
     if id == 'bossfight':
-        return lambda x: LimitActions(x, __ARROW_KEY_IDS__ + __NO_OP__ + [9, ])
+        env = LimitActions(env, __ARROW_KEY_IDS__ + __NO_OP__ + [9, ])
     elif id == 'bigfist':
-        return lambda x: LimitActions(x, __ARROW_KEY_IDS__ + __NO_OP__)
+        env = LimitActions(env, __ARROW_KEY_IDS__ + __NO_OP__)
     elif id == 'coinrun':
-        return lambda x: LimitActions(x, __ARROW_KEY_IDS__ + __NO_OP__)
-    return lambda x: x
+        env = LimitActions(env, __ARROW_KEY_IDS__ + __NO_OP__)
+    
+
+    return env
 
 
 class ProcgenWrapper(gymnasium.Env):
@@ -54,9 +56,8 @@ class ProcgenWrapper(gymnasium.Env):
                  center_agent: bool = True):
 
 
-        self.wrapper = get_procgen_wrapper(id)
 
-        self.env = self.wrapper(gym.make(f'procgen-{id}-v0', 
+        self.env = get_procgen_wrapper(gym.make(f'procgen-{id}-v0', 
                             use_sequential_levels=deterministic, 
                             start_level=seed, 
                             num_levels=num_levels,
@@ -82,6 +83,7 @@ class ProcgenWrapper(gymnasium.Env):
         self.render_mode: str = "rgb_array"
         # metadata
         self.metadata = {"render_fps": 30}
+        self.frames_per_sec = 30
         
     
     def step(self, action):

@@ -4,6 +4,8 @@ defaults:
 
 # Override from `default` config
 id: procgen
+video_freq: 10
+#video_length: 200
 
 # Wrapper to be instantiated
 wrapper:

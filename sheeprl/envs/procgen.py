@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, Dict, List, Optional, SupportsFloat, Tuple, Union
+from typing import Any, Dict, List, Literal, Optional, SupportsFloat, Tuple, Union
 
 
 import gym
@@ -45,7 +45,13 @@ def get_procgen_wrapper(id: str):
 
 
 class ProcgenWrapper(gymnasium.Env):
-    def __init__(self, id: str, seed: int | None = None, deterministic: bool = False):
+    def __init__(self, 
+                 id: str, 
+                 seed: int | None = None, 
+                 num_levels: int = 0,
+                 deterministic: bool = False,
+                 distribution_mode: Literal["easy", "hard", "extreme", "memory", "exploration"] = "hard",
+                 center_agent: bool = True):
 
 
         self.wrapper = get_procgen_wrapper(id)
@@ -53,6 +59,9 @@ class ProcgenWrapper(gymnasium.Env):
         self.env = self.wrapper(gym.make(f'procgen-{id}-v0', 
                             use_sequential_levels=deterministic, 
                             start_level=seed, 
+                            num_levels=num_levels,
+                            distribution_mode=distribution_mode,
+                            center_agent=center_agent,
                             render_mode='rgb_array'))
 
         self.action_space = gymnasium.spaces.Discrete(

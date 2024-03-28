@@ -10,3 +10,7 @@ wrapper:
   _target_: sheeprl.envs.procgen.ProcgenWrapper
   id: ${env.id}
   seed: ${seed}
+  deterministic: True
+  num_levels: 1
+  distribution_mode: "easy"
+  center_agent: True

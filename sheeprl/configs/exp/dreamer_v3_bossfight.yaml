@@ -13,6 +13,9 @@ seed: 42
 env:
   num_envs: 8
   id: bossfight
+  num_levels: 1
+  deterministic: True
+  distribution_mode: "easy"
 
 # Checkpoint
 checkpoint:
